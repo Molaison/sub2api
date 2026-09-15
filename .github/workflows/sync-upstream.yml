@@ -1,0 +1,49 @@
+name: Sync upstream and verify replay fix
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 3 * * 1"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-upstream-deepseek-replay-fix
+  cancel-in-progress: false
+
+jobs:
+  rebase-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out patched branch
+        uses: actions/checkout@v6
+        with:
+          ref: deepseek-responses-replay-fix
+          fetch-depth: 0
+
+      - name: Rebase onto upstream main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add upstream https://github.com/Wei-Shaw/sub2api.git
+          git fetch upstream main --tags
+          git rebase upstream/main
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: backend/go.mod
+          check-latest: false
+          cache: true
+          cache-dependency-path: backend/go.sum
+
+      - name: Test Responses replay normalization
+        working-directory: backend
+        run: >-
+          go test ./internal/service
+          -run '^TestNormalizeOpenAIResponsesAssistantToolReplay'
+          -count=1
+
+      - name: Update patched branch
+        run: >-
