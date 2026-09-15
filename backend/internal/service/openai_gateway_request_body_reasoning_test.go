@@ -257,6 +257,34 @@ func TestNormalizeOpenAIAPIKeyStoreFalseReasoningReplayRejectsEmptyEncryptedCont
 	}
 }
 
+func TestNormalizeOpenAIResponsesAssistantToolReplay(t *testing.T) {
+	body := []byte(`{"model":"DeepSeek-V4.1-Flash","input":[` +
+		`{"type":"function_call","id":"call_1","call_id":"call_1","name":"exec_command","arguments":"{}"},` +
+		`{"type":"message","id":"msg_between","role":"assistant","status":"completed","content":[{"type":"output_text","text":"I will run it."}]},` +
+		`{"type":"function_call_output","call_id":"call_1","output":"ok"}` +
+		`]}`)
+
+	normalized, changed, err := normalizeOpenAIResponsesAssistantToolReplay(body)
+
+	require.NoError(t, err)
+	require.True(t, changed)
+	require.Equal(t, int64(2), gjson.GetBytes(normalized, "input.#").Int())
+	require.Equal(t, "function_call", gjson.GetBytes(normalized, "input.0.type").String())
+	require.Equal(t, "function_call_output", gjson.GetBytes(normalized, "input.1.type").String())
+}
+
+func TestNormalizeOpenAIResponsesAssistantToolReplayPreservesOtherMessages(t *testing.T) {
+	for _, body := range []string{
+		`{"input":[{"type":"message","role":"assistant","content":[{"type":"output_text","text":""}]}]}`,
+		`{"input":[{"type":"function_call","call_id":"call_1","name":"exec_command","arguments":"{}"},{"type":"message","role":"assistant","content":[{"type":"output_text","text":""}]},{"type":"function_call_output","call_id":"call_2","output":"ok"}]}`,
+	} {
+		normalized, changed, err := normalizeOpenAIResponsesAssistantToolReplay([]byte(body))
+		require.NoError(t, err)
+		require.False(t, changed)
+		require.Equal(t, body, string(normalized))
+	}
+}
+
 func TestNormalizeOpenAIParallelToolCallsWithoutTools(t *testing.T) {
 	withTools := []byte(`{"tools":[{"type":"function","name":"lookup"}],"parallel_tool_calls":false}`)
 	normalized, changed, err := normalizeOpenAIParallelToolCallsWithoutTools(withTools, false)
