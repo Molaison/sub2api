@@ -285,6 +285,37 @@ func TestNormalizeOpenAIResponsesAssistantToolReplayPreservesOtherMessages(t *te
 	}
 }
 
+func TestNormalizeParateraDeepSeekAssistantToolReplayPreservesCompletedRoundContent(t *testing.T) {
+	body := []byte(`{"model":"DeepSeek-V4.1-Flash","input":[` +
+		`{"type":"reasoning","content":[{"type":"reasoning_text","text":"keep reasoning"}]},` +
+		`{"type":"function_call","call_id":"call_a","name":"spawn_agent","arguments":"{}"},` +
+		`{"type":"message","role":"assistant","content":[{"type":"output_text","text":"keep preface"}]},` +
+		`{"type":"function_call","call_id":"call_b","name":"wait_agent","arguments":"{}"},` +
+		`{"type":"function_call_output","call_id":"call_a","output":"child-1"},` +
+		`{"type":"function_call_output","call_id":"call_b","output":"done"}` +
+		`]}`)
+
+	normalized, changed, err := normalizeParateraDeepSeekAssistantToolReplay(body)
+	require.NoError(t, err)
+	require.True(t, changed)
+	require.Equal(t, int64(6), gjson.GetBytes(normalized, "input.#").Int())
+	require.Equal(t, "reasoning", gjson.GetBytes(normalized, "input.0.type").String())
+	require.Equal(t, "keep preface", gjson.GetBytes(normalized, "input.1.content.0.text").String())
+	require.Equal(t, "function_call", gjson.GetBytes(normalized, "input.2.type").String())
+	require.Equal(t, "call_a", gjson.GetBytes(normalized, "input.2.call_id").String())
+	require.Equal(t, "call_b", gjson.GetBytes(normalized, "input.3.call_id").String())
+	require.Equal(t, "function_call_output", gjson.GetBytes(normalized, "input.4.type").String())
+	require.Equal(t, "function_call_output", gjson.GetBytes(normalized, "input.5.type").String())
+}
+
+func TestNormalizeParateraDeepSeekAssistantToolReplayLeavesIncompleteRoundUnchanged(t *testing.T) {
+	body := []byte(`{"input":[{"type":"function_call","call_id":"call_1","name":"spawn_agent","arguments":"{}"},{"type":"message","role":"assistant","content":"keep"}]}`)
+	normalized, changed, err := normalizeParateraDeepSeekAssistantToolReplay(body)
+	require.NoError(t, err)
+	require.False(t, changed)
+	require.Equal(t, string(body), string(normalized))
+}
+
 func TestNormalizeOpenAIParallelToolCallsWithoutTools(t *testing.T) {
 	withTools := []byte(`{"tools":[{"type":"function","name":"lookup"}],"parallel_tool_calls":false}`)
 	normalized, changed, err := normalizeOpenAIParallelToolCallsWithoutTools(withTools, false)

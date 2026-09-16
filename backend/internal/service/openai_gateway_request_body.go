@@ -596,6 +596,112 @@ func normalizeOpenAIResponsesAssistantToolReplay(body []byte) ([]byte, bool, err
 	}
 	return normalized, true, nil
 }
+
+func shouldUseParateraDeepSeekResponsesCompatibility(account *Account, body []byte) bool {
+	if account == nil || !account.IsOpenAIApiKey() {
+		return false
+	}
+	baseURL := strings.TrimRight(strings.TrimSpace(account.GetOpenAIBaseURL()), "/")
+	model := strings.TrimSpace(gjson.GetBytes(body, "model").String())
+	return strings.EqualFold(baseURL, "https://llmapi.paratera.com/v1") &&
+		strings.EqualFold(model, "DeepSeek-V4.1-Flash")
+}
+
+// normalizeParateraDeepSeekAssistantToolReplay keeps provider messages while
+// moving them before a fully paired function-call block. Paratera rejects
+// assistant messages between a call and its matching output.
+func normalizeParateraDeepSeekAssistantToolReplay(body []byte) ([]byte, bool, error) {
+	input := gjson.GetBytes(body, "input")
+	if !input.IsArray() {
+		return body, false, nil
+	}
+	var reqBody map[string]any
+	if err := decodeOpenAIJSONUseNumber(body, &reqBody); err != nil {
+		return body, false, fmt.Errorf("normalize Paratera assistant tool replay: %w", err)
+	}
+	items, ok := reqBody["input"].([]any)
+	if !ok {
+		return body, false, nil
+	}
+	normalizedItems := make([]any, 0, len(items))
+	changed := false
+	for i := 0; i < len(items); {
+		item, isObject := items[i].(map[string]any)
+		if !isObject || strings.TrimSpace(firstNonEmptyString(item["type"])) != "function_call" {
+			normalizedItems = append(normalizedItems, items[i])
+			i++
+			continue
+		}
+		reordered, consumed, blockChanged := reorderCompletedParateraToolReplayBlock(items[i:])
+		if consumed == 0 {
+			normalizedItems = append(normalizedItems, items[i:]...)
+			break
+		}
+		normalizedItems = append(normalizedItems, reordered...)
+		changed = changed || blockChanged
+		i += consumed
+	}
+	if !changed {
+		return body, false, nil
+	}
+	reqBody["input"] = normalizedItems
+	normalized, err := marshalOpenAIUpstreamJSON(reqBody)
+	if err != nil {
+		return body, false, fmt.Errorf("serialize Paratera assistant tool replay: %w", err)
+	}
+	return normalized, true, nil
+}
+
+func reorderCompletedParateraToolReplayBlock(items []any) ([]any, int, bool) {
+	pending := make(map[string]int)
+	assistantMessages := make([]any, 0)
+	toolItems := make([]any, 0)
+	for i, rawItem := range items {
+		item, ok := rawItem.(map[string]any)
+		if !ok {
+			return nil, 0, false
+		}
+		typ := strings.TrimSpace(firstNonEmptyString(item["type"]))
+		switch typ {
+		case "function_call":
+			callID := strings.TrimSpace(firstNonEmptyString(item["call_id"]))
+			if callID == "" {
+				return nil, 0, false
+			}
+			pending[callID]++
+			toolItems = append(toolItems, rawItem)
+		case "function_call_output":
+			callID := strings.TrimSpace(firstNonEmptyString(item["call_id"]))
+			if callID == "" || pending[callID] == 0 {
+				return nil, 0, false
+			}
+			pending[callID]--
+			toolItems = append(toolItems, rawItem)
+			if allParateraToolCallsCompleted(pending) {
+				reordered := make([]any, 0, len(assistantMessages)+len(toolItems))
+				reordered = append(reordered, assistantMessages...)
+				reordered = append(reordered, toolItems...)
+				return reordered, i + 1, len(assistantMessages) > 0
+			}
+		default:
+			if !isOpenAIResponsesAssistantMessage(item) {
+				return nil, 0, false
+			}
+			assistantMessages = append(assistantMessages, rawItem)
+		}
+	}
+	return nil, 0, false
+}
+
+func allParateraToolCallsCompleted(pending map[string]int) bool {
+	for _, count := range pending {
+		if count > 0 {
+			return false
+		}
+	}
+	return len(pending) > 0
+}
+
 func hasPendingOpenAIToolOutput(pendingCalls, futureOutputs map[string]int) bool {
 	for callID, count := range pendingCalls {
 		if count > 0 && futureOutputs[callID] > 0 {

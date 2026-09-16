@@ -113,6 +113,8 @@ func (s *OpenAIGatewayService) Forward(ctx context.Context, c *gin.Context, acco
 	wsDecision = resolveOpenAIWSDecisionByClientTransport(wsDecision, GetOpenAIClientTransport(c))
 	passthroughEnabled := account.IsOpenAIPassthroughEnabled()
 	compactPath := isOpenAIResponsesCompactPath(c)
+	parateraDeepSeekResponses := shouldUseParateraDeepSeekResponsesCompatibility(account, body) &&
+		!compactPath && !shouldForwardOpenAIResponsesViaRawChatCompletions(account)
 	if shouldFlattenOpenAIResponsesNamespaces(account, wsDecision.Transport, passthroughEnabled, compactPath) {
 		body, err = flattenOpenAIResponsesNamespaces(c, body)
 		if err != nil {
@@ -139,11 +141,11 @@ func (s *OpenAIGatewayService) Forward(ctx context.Context, c *gin.Context, acco
 
 	nativeCNResponses := account.UsesNativeCNResponses()
 	nativeDeepSeekResponses := account.Platform == PlatformDeepseek && nativeCNResponses
-	if nativeDeepSeekResponses && account.Type == AccountTypeAPIKey && !compactPath &&
+	if (nativeDeepSeekResponses || parateraDeepSeekResponses) && account.Type == AccountTypeAPIKey && !compactPath &&
 		needsOpenAIResponsesClientToolAdaptation(body) {
 		adaptedBody, mapping, adaptErr := adaptOpenAIResponsesClientTools(body)
 		if adaptErr != nil {
-			return nil, fmt.Errorf("adapt DeepSeek Responses client tools: %w", adaptErr)
+			return nil, fmt.Errorf("adapt Responses client tools: %w", adaptErr)
 		}
 		body = adaptedBody
 		setOpenAIResponsesClientToolMapping(c, mapping)
@@ -184,13 +186,19 @@ func (s *OpenAIGatewayService) Forward(ctx context.Context, c *gin.Context, acco
 			body = normalized
 			originalBody = normalized
 		}
-		if normalized, changed, normalizeErr := normalizeOpenAIAPIKeyStoreFalseReasoningReplay(body, isOpenAIResponsesCompactPath(c)); normalizeErr != nil {
-			return nil, normalizeErr
-		} else if changed {
-			body = normalized
-			originalBody = normalized
+		if !parateraDeepSeekResponses {
+			if normalized, changed, normalizeErr := normalizeOpenAIAPIKeyStoreFalseReasoningReplay(body, isOpenAIResponsesCompactPath(c)); normalizeErr != nil {
+				return nil, normalizeErr
+			} else if changed {
+				body = normalized
+				originalBody = normalized
+			}
 		}
-		if normalized, changed, normalizeErr := normalizeOpenAIResponsesAssistantToolReplay(body); normalizeErr != nil {
+		normalizeAssistantReplay := normalizeOpenAIResponsesAssistantToolReplay
+		if parateraDeepSeekResponses {
+			normalizeAssistantReplay = normalizeParateraDeepSeekAssistantToolReplay
+		}
+		if normalized, changed, normalizeErr := normalizeAssistantReplay(body); normalizeErr != nil {
 			return nil, normalizeErr
 		} else if changed {
 			body = normalized
@@ -206,16 +214,18 @@ func (s *OpenAIGatewayService) Forward(ctx context.Context, c *gin.Context, acco
 	}
 	SetActualOpenAIUpstreamEndpoint(c, openAIResponsesUpstreamEndpoint)
 	if account.IsOpenAI() && (account.IsOpenAIApiKey() || account.IsOpenAIOAuthLike()) {
-		normalizedReasoningBody, reasoningChanged, reasoningErr := normalizeOpenAIResponsesReasoningContentReplay(body)
-		if reasoningErr != nil {
-			return nil, fmt.Errorf("normalize OpenAI Responses reasoning content replay: %w", reasoningErr)
-		}
-		if reasoningChanged {
-			body = normalizedReasoningBody
-			originalBody = normalizedReasoningBody
-			requestView = newOpenAIRequestView(normalizedReasoningBody)
-			reqModel, reqStream, promptCacheKey = requestView.Model, requestView.Stream, requestView.PromptCacheKey
-			originalModel = reqModel
+		if !parateraDeepSeekResponses {
+			normalizedReasoningBody, reasoningChanged, reasoningErr := normalizeOpenAIResponsesReasoningContentReplay(body)
+			if reasoningErr != nil {
+				return nil, fmt.Errorf("normalize OpenAI Responses reasoning content replay: %w", reasoningErr)
+			}
+			if reasoningChanged {
+				body = normalizedReasoningBody
+				originalBody = normalizedReasoningBody
+				requestView = newOpenAIRequestView(normalizedReasoningBody)
+				reqModel, reqStream, promptCacheKey = requestView.Model, requestView.Stream, requestView.PromptCacheKey
+				originalModel = reqModel
+			}
 		}
 		sanitizedBody, changed, sanitizeErr := sanitizeOpenAIResponsesInputItemIDs(body)
 		if sanitizeErr != nil {

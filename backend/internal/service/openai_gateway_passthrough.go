@@ -61,26 +61,36 @@ func adaptOpenAIResponsesClientTools(body []byte) ([]byte, apicompat.ResponsesCl
 }
 
 func needsOpenAIResponsesClientToolAdaptation(body []byte) bool {
-	needsAdaptation := false
-	var visit func(gjson.Result) bool
-	visit = func(value gjson.Result) bool {
-		if value.IsObject() {
-			switch strings.TrimSpace(value.Get("type").String()) {
-			case "custom", "custom_tool_call", "custom_tool_call_output",
-				"tool_search", "tool_search_call", "tool_search_output":
-				needsAdaptation = true
-				return false
+	toolDeclarationNeedsAdaptation := func(tool gjson.Result) bool {
+		switch strings.TrimSpace(tool.Get("type").String()) {
+		case "custom", "tool_search", "namespace":
+			return true
+		default:
+			return false
+		}
+	}
+	for _, tool := range gjson.GetBytes(body, "tools").Array() {
+		if toolDeclarationNeedsAdaptation(tool) {
+			return true
+		}
+	}
+	for _, item := range gjson.GetBytes(body, "input").Array() {
+		switch strings.TrimSpace(item.Get("type").String()) {
+		case "custom_tool_call", "custom_tool_call_output", "tool_search_call", "tool_search_output":
+			return true
+		case "function_call":
+			if strings.TrimSpace(item.Get("namespace").String()) != "" {
+				return true
+			}
+		case "additional_tools":
+			for _, tool := range item.Get("tools").Array() {
+				if toolDeclarationNeedsAdaptation(tool) {
+					return true
+				}
 			}
 		}
-		if value.IsObject() || value.IsArray() {
-			value.ForEach(func(_, child gjson.Result) bool {
-				return visit(child)
-			})
-		}
-		return !needsAdaptation
 	}
-	visit(gjson.ParseBytes(body))
-	return needsAdaptation
+	return false
 }
 
 func openAIResponsesClientToolMapping(c *gin.Context) (apicompat.ResponsesClientToolMapping, bool) {

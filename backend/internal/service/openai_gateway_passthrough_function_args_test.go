@@ -115,6 +115,70 @@ func TestForwardResponsesChatCompletionsFallbackKeepsFunctionArgumentsSingle(t *
 	require.Equal(t, wantArgs, gjson.Get(findSSEEvent(t, events, "response.output_item.done", "chatcmpl-tool-a"), "item.arguments").String())
 }
 
+func TestNeedsOpenAIResponsesClientToolAdaptationTypedLocations(t *testing.T) {
+	for _, body := range []string{
+		`{"tools":[{"type":"namespace","name":"collaboration","tools":[{"type":"function","name":"spawn_agent"}]}]}`,
+		`{"input":[{"type":"additional_tools","tools":[{"type":"namespace","name":"collaboration","tools":[]}]}]}`,
+		`{"input":[{"type":"function_call","namespace":"collaboration","name":"spawn_agent","call_id":"call_1"}]}`,
+	} {
+		require.True(t, needsOpenAIResponsesClientToolAdaptation([]byte(body)))
+	}
+	require.False(t, needsOpenAIResponsesClientToolAdaptation([]byte(
+		`{"tools":[{"type":"function","name":"submit","parameters":{"type":"object","properties":{"kind":{"const":"namespace"}}}}]}`,
+	)))
+}
+
+func TestForwardParateraDeepSeekAdaptsNamespaceAndPreservesReplay(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	body := []byte(`{"model":"DeepSeek-V4.1-Flash","store":false,"stream":false,"tools":[` +
+		`{"type":"namespace","name":"collaboration","tools":[{"type":"function","name":"spawn_agent","parameters":{"type":"object"}}]}` +
+		`],"input":[` +
+		`{"type":"message","role":"user","content":"delegate"},` +
+		`{"type":"reasoning","summary":[],"content":[{"type":"reasoning_text","text":"keep reasoning"}]},` +
+		`{"type":"function_call","namespace":"collaboration","name":"spawn_agent","call_id":"call_old","arguments":"{}"},` +
+		`{"type":"message","role":"assistant","content":[{"type":"output_text","text":"keep preface"}]},` +
+		`{"type":"function_call_output","call_id":"call_old","output":"child-old"}` +
+		`]}`)
+	rec := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(rec)
+	c.Request = httptest.NewRequest(http.MethodPost, "/v1/responses", strings.NewReader(string(body)))
+	c.Request.Header.Set("Content-Type", "application/json")
+	upstream := &httpUpstreamRecorder{resp: &http.Response{
+		StatusCode: http.StatusOK,
+		Header:     http.Header{"Content-Type": []string{"application/json"}},
+		Body: io.NopCloser(strings.NewReader(
+			`{"id":"resp_1","status":"completed","model":"DeepSeek-V4.1-Flash","output":[{"type":"function_call","id":"fc_new","call_id":"call_new","name":"collaboration__spawn_agent","arguments":"{}"}],"usage":{"input_tokens":1,"output_tokens":1,"total_tokens":2}}`,
+		)),
+	}}
+	account := &Account{
+		ID:       120,
+		Name:     "paratera-deepseek-test",
+		Platform: PlatformOpenAI,
+		Type:     AccountTypeAPIKey,
+		Credentials: map[string]any{
+			"api_key":  "sk-test",
+			"base_url": "https://llmapi.paratera.com/v1",
+		},
+		Extra: map[string]any{
+			openai_compat.ExtraKeyResponsesMode: string(openai_compat.ResponsesSupportModeForceResponses),
+		},
+	}
+	svc := &OpenAIGatewayService{cfg: passthroughArgsTestConfig(), httpUpstream: upstream}
+
+	result, err := svc.Forward(context.Background(), c, account, body)
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "function", gjson.GetBytes(upstream.lastBody, "tools.0.type").String())
+	require.Equal(t, "collaboration__spawn_agent", gjson.GetBytes(upstream.lastBody, "tools.0.name").String())
+	require.Equal(t, "keep reasoning", gjson.GetBytes(upstream.lastBody, "input.1.content.0.text").String())
+	require.Equal(t, "message", gjson.GetBytes(upstream.lastBody, "input.2.type").String())
+	require.Equal(t, "keep preface", gjson.GetBytes(upstream.lastBody, "input.2.content.0.text").String())
+	require.Equal(t, "collaboration__spawn_agent", gjson.GetBytes(upstream.lastBody, "input.3.name").String())
+	require.Equal(t, "function_call_output", gjson.GetBytes(upstream.lastBody, "input.4.type").String())
+	require.Equal(t, "collaboration", gjson.Get(rec.Body.String(), "output.0.namespace").String())
+	require.Equal(t, "spawn_agent", gjson.Get(rec.Body.String(), "output.0.name").String())
+}
+
 func passthroughSSEData(payload string) string {
 	return "data: " + payload + "\n\n"
 }
