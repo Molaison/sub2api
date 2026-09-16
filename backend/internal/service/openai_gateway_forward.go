@@ -115,6 +115,7 @@ func (s *OpenAIGatewayService) Forward(ctx context.Context, c *gin.Context, acco
 	compactPath := isOpenAIResponsesCompactPath(c)
 	parateraDeepSeekResponses := shouldUseParateraDeepSeekResponsesCompatibility(account, body) &&
 		!compactPath && !shouldForwardOpenAIResponsesViaRawChatCompletions(account)
+	var parateraStructuredOutput *parateraDeepSeekStructuredOutputBridge
 	if shouldFlattenOpenAIResponsesNamespaces(account, wsDecision.Transport, passthroughEnabled, compactPath) {
 		body, err = flattenOpenAIResponsesNamespaces(c, body)
 		if err != nil {
@@ -155,6 +156,14 @@ func (s *OpenAIGatewayService) Forward(ctx context.Context, c *gin.Context, acco
 			return nil, normalizeErr
 		} else if changed {
 			body = normalized
+		}
+		bridged, bridge, changed, bridgeErr := prepareParateraDeepSeekStructuredOutput(body)
+		if bridgeErr != nil {
+			return nil, bridgeErr
+		}
+		if changed {
+			body = bridged
+			parateraStructuredOutput = bridge
 		}
 	}
 
@@ -1223,6 +1232,15 @@ func (s *OpenAIGatewayService) Forward(ctx context.Context, c *gin.Context, acco
 			return s.handleErrorResponse(ctx, resp, c, account, body, resolveOpenAIErrorSchedulingModel(billingModel, upstreamModel))
 		}
 		defer func() { _ = resp.Body.Close() }()
+		if parateraStructuredOutput != nil {
+			if validationErr := s.validateParateraDeepSeekStructuredOutputResponse(resp, c, parateraStructuredOutput); validationErr != nil {
+				return nil, s.writeOpenAINonStreamingProtocolError(
+					resp,
+					c,
+					"Paratera structured output bridge validation failed: "+validationErr.Error(),
+				)
+			}
+		}
 
 		if mapping, ok := openAIResponsesClientToolMapping(c); ok && isEventStreamResponse(resp.Header) {
 			maxLineSize := defaultMaxLineSize
