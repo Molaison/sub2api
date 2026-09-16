@@ -446,6 +446,17 @@ func (s *OpenAIGatewayService) forwardOpenAIPassthrough(
 			}
 			resp.Body = newGrokResponsesClientToolStreamBody(resp.Body, mapping, maxLineSize)
 		}
+		// Paratera 的 DeepSeek-V4.1-Flash 会漏发 message 项的 output_item.added，
+		// 下游 Codex 因此丢弃正文 delta（详见
+		// openai_gateway_paratera_deepseek_stream.go）。
+		if isEventStreamResponse(resp.Header) &&
+			shouldRepairParateraDeepSeekStream(account, gjson.GetBytes(body, "model").String()) {
+			maxLineSize := defaultMaxLineSize
+			if s.cfg != nil && s.cfg.Gateway.MaxLineSize > 0 {
+				maxLineSize = s.cfg.Gateway.MaxLineSize
+			}
+			resp.Body = newParateraDeepSeekStreamBody(resp.Body, maxLineSize)
+		}
 
 		// x-codex-turn-state 溯源：下游回传由 writeOpenAIPassthroughResponseHeaders
 		// 在各 handler 的写头点强制放行，铸造账号在此统一记录，供出站守卫剥离

@@ -42,7 +42,7 @@ jobs:
         working-directory: backend
         run: >-
           go test ./internal/service
-          -run '^(TestNormalizeOpenAIResponsesAssistantToolReplay|TestDeepSeekCodexReasoning|TestStripDeepSeekCodexReasoningHeaders)'
+          -run '^(TestNormalizeOpenAIResponsesAssistantToolReplay|TestDeepSeekCodexReasoning|TestStripDeepSeekCodexReasoningHeaders|TestParateraDeepSeek|TestShouldRepairParateraDeepSeekStreamScope)'
           -count=1
 
       - name: Update patched branch

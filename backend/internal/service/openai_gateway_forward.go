@@ -1249,6 +1249,16 @@ func (s *OpenAIGatewayService) Forward(ctx context.Context, c *gin.Context, acco
 			}
 			resp.Body = newResponsesClientToolStreamBody(resp.Body, mapping, maxLineSize)
 		}
+		// Paratera 的 DeepSeek-V4.1-Flash 在同时产出 reasoning/tool 项时会漏发
+		// message 项的 output_item.added，Codex 因此丢弃正文 delta（详见
+		// openai_gateway_paratera_deepseek_stream.go）。这里在下游看到流之前补齐。
+		if parateraDeepSeekResponses && isEventStreamResponse(resp.Header) {
+			maxLineSize := defaultMaxLineSize
+			if s.cfg != nil && s.cfg.Gateway.MaxLineSize > 0 {
+				maxLineSize = s.cfg.Gateway.MaxLineSize
+			}
+			resp.Body = newParateraDeepSeekStreamBody(resp.Body, maxLineSize)
+		}
 
 		serviceTier := extractOpenAIServiceTierFromBody(body)
 		// 上游接受后只保留计费需要的标量，避免响应处理期间继续保活完整 input/tools map。

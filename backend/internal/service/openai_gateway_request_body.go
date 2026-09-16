@@ -601,10 +601,17 @@ func shouldUseParateraDeepSeekResponsesCompatibility(account *Account, body []by
 	if account == nil || !account.IsOpenAIApiKey() {
 		return false
 	}
-	baseURL := strings.TrimRight(strings.TrimSpace(account.GetOpenAIBaseURL()), "/")
-	model := strings.TrimSpace(gjson.GetBytes(body, "model").String())
-	return strings.EqualFold(baseURL, "https://llmapi.paratera.com/v1") &&
-		strings.EqualFold(model, "DeepSeek-V4.1-Flash")
+	return isParateraDeepSeekResponsesEndpoint(account.GetOpenAIBaseURL(), gjson.GetBytes(body, "model").String())
+}
+
+const (
+	parateraDeepSeekResponsesBaseURL = "https://llmapi.paratera.com/v1"
+	parateraDeepSeekResponsesModel   = "DeepSeek-V4.1-Flash"
+)
+
+func isParateraDeepSeekResponsesEndpoint(baseURL, model string) bool {
+	return strings.EqualFold(strings.TrimRight(strings.TrimSpace(baseURL), "/"), parateraDeepSeekResponsesBaseURL) &&
+		strings.EqualFold(strings.TrimSpace(model), parateraDeepSeekResponsesModel)
 }
 
 // normalizeParateraDeepSeekAgentMessages projects Codex V2 inter-agent items
