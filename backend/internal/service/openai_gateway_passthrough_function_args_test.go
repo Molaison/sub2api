@@ -137,7 +137,12 @@ func TestForwardParateraDeepSeekAdaptsNamespaceAndPreservesReplay(t *testing.T) 
 		`{"type":"reasoning","summary":[],"content":[{"type":"reasoning_text","text":"keep reasoning"}]},` +
 		`{"type":"function_call","namespace":"collaboration","name":"spawn_agent","call_id":"call_old","arguments":"{}"},` +
 		`{"type":"message","role":"assistant","content":[{"type":"output_text","text":"keep preface"}]},` +
-		`{"type":"function_call_output","call_id":"call_old","output":"child-old"}` +
+		`{"type":"function_call_output","call_id":"call_old","output":"child-old"},` +
+		`{"type":"agent_message","id":"amsg_task","author":"/root","recipient":"/root/child","content":[` +
+		`{"type":"input_text","text":"Message Type: NEW_TASK\nPayload:\n"},` +
+		`{"type":"encrypted_content","encrypted_content":"Compute GATEWAY_TASK_NONCE and return the result."}]},` +
+		`{"type":"agent_message","id":"amsg_result","author":"/root/child","recipient":"/root","content":[` +
+		`{"type":"input_text","text":"Message Type: FINAL_ANSWER\nPayload:\nGATEWAY_RESULT"}]}` +
 		`]}`)
 	rec := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(rec)
@@ -175,6 +180,12 @@ func TestForwardParateraDeepSeekAdaptsNamespaceAndPreservesReplay(t *testing.T) 
 	require.Equal(t, "keep preface", gjson.GetBytes(upstream.lastBody, "input.2.content.0.text").String())
 	require.Equal(t, "collaboration__spawn_agent", gjson.GetBytes(upstream.lastBody, "input.3.name").String())
 	require.Equal(t, "function_call_output", gjson.GetBytes(upstream.lastBody, "input.4.type").String())
+	require.Equal(t, "message", gjson.GetBytes(upstream.lastBody, "input.5.type").String())
+	require.Equal(t, "user", gjson.GetBytes(upstream.lastBody, "input.5.role").String())
+	require.Equal(t, "Compute GATEWAY_TASK_NONCE and return the result.", gjson.GetBytes(upstream.lastBody, "input.5.content.1.text").String())
+	require.Equal(t, "message", gjson.GetBytes(upstream.lastBody, "input.6.type").String())
+	require.Equal(t, "user", gjson.GetBytes(upstream.lastBody, "input.6.role").String())
+	require.Equal(t, "Message Type: FINAL_ANSWER\nPayload:\nGATEWAY_RESULT", gjson.GetBytes(upstream.lastBody, "input.6.content.0.text").String())
 	require.Equal(t, "collaboration", gjson.Get(rec.Body.String(), "output.0.namespace").String())
 	require.Equal(t, "spawn_agent", gjson.Get(rec.Body.String(), "output.0.name").String())
 }

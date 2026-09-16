@@ -8,6 +8,45 @@ import (
 	"github.com/tidwall/gjson"
 )
 
+func TestNormalizeParateraDeepSeekAgentMessages(t *testing.T) {
+	body := []byte(`{"model":"DeepSeek-V4.1-Flash","input":[` +
+		`{"type":"agent_message","id":"amsg_task","author":"/root","recipient":"/root/child","content":[` +
+		`{"type":"input_text","text":"Message Type: NEW_TASK\nTask name: /root/child\nPayload:\n"},` +
+		`{"type":"encrypted_content","encrypted_content":"Compute the synthetic nonce CANARY_TASK_NONCE_TEST and return it."}]},` +
+		`{"type":"agent_message","id":"amsg_result","author":"/root/child","recipient":"/root","content":[` +
+		`{"type":"input_text","text":"Message Type: FINAL_ANSWER\nPayload:\nCANARY_RESULT"}]},` +
+		`{"type":"agent_message","id":"amsg_opaque","author":"/root","recipient":"/root/child","content":[` +
+		`{"type":"input_text","text":"Message Type: NEW_TASK\nPayload:\n"},` +
+		`{"type":"encrypted_content","encrypted_content":"gAAAAABopaqueCiphertext"}]}` +
+		`]}`)
+	normalized, changed, err := normalizeParateraDeepSeekAgentMessages(body)
+	require.NoError(t, err)
+	require.True(t, changed)
+	require.Equal(t, "message", gjson.GetBytes(normalized, "input.0.type").String())
+	require.Equal(t, "user", gjson.GetBytes(normalized, "input.0.role").String())
+	require.Equal(t, "amsg_task", gjson.GetBytes(normalized, "input.0.id").String())
+	require.Equal(t, "Message Type: NEW_TASK\nTask name: /root/child\nPayload:\n", gjson.GetBytes(normalized, "input.0.content.0.text").String())
+	require.Equal(t, "Compute the synthetic nonce CANARY_TASK_NONCE_TEST and return it.", gjson.GetBytes(normalized, "input.0.content.1.text").String())
+	require.False(t, gjson.GetBytes(normalized, "input.0.author").Exists())
+	require.False(t, gjson.GetBytes(normalized, "input.0.recipient").Exists())
+	require.Equal(t, "message", gjson.GetBytes(normalized, "input.1.type").String())
+	require.Equal(t, "user", gjson.GetBytes(normalized, "input.1.role").String())
+	require.Equal(t, "Message Type: FINAL_ANSWER\nPayload:\nCANARY_RESULT", gjson.GetBytes(normalized, "input.1.content.0.text").String())
+	require.Equal(t, "agent_message", gjson.GetBytes(normalized, "input.2.type").String())
+	require.Equal(t, "gAAAAABopaqueCiphertext", gjson.GetBytes(normalized, "input.2.content.1.encrypted_content").String())
+}
+
+func TestNormalizeParateraDeepSeekAgentMessagesLeavesOtherItems(t *testing.T) {
+	body := []byte(`{"input":[` +
+		`{"type":"message","role":"user","content":[{"type":"input_text","text":"hello"}]},` +
+		`{"type":"agent_message","content":[{"type":"encrypted_content","encrypted_content":"readable payload text"}]}` +
+		`]}`)
+	normalized, changed, err := normalizeParateraDeepSeekAgentMessages(body)
+	require.NoError(t, err)
+	require.False(t, changed)
+	require.Equal(t, string(body), string(normalized))
+}
+
 func TestTrimOpenAIEncryptedReasoningItems_ContentNull(t *testing.T) {
 	reqBody := map[string]any{
 		"model": "grok-4.5",

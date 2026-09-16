@@ -607,6 +607,96 @@ func shouldUseParateraDeepSeekResponsesCompatibility(account *Account, body []by
 		strings.EqualFold(model, "DeepSeek-V4.1-Flash")
 }
 
+// normalizeParateraDeepSeekAgentMessages projects Codex V2 inter-agent items
+// into standard Responses user messages. Codex currently places readable task
+// text in an encrypted_content-shaped part; this function only re-tags the
+// literal string and never attempts to decode or decrypt it.
+func normalizeParateraDeepSeekAgentMessages(body []byte) ([]byte, bool, error) {
+	if !gjson.GetBytes(body, "input").IsArray() {
+		return body, false, nil
+	}
+	var reqBody map[string]any
+	if err := decodeOpenAIJSONUseNumber(body, &reqBody); err != nil {
+		return body, false, fmt.Errorf("normalize Paratera agent messages: %w", err)
+	}
+	items, ok := reqBody["input"].([]any)
+	if !ok {
+		return body, false, nil
+	}
+	changed := false
+	for i, rawItem := range items {
+		item, ok := rawItem.(map[string]any)
+		if !ok || strings.TrimSpace(firstNonEmptyString(item["type"])) != "agent_message" {
+			continue
+		}
+		parts, ok := item["content"].([]any)
+		if !ok || len(parts) == 0 {
+			continue
+		}
+		normalizedParts := make([]any, 0, len(parts))
+		headerSeen := false
+		transformable := true
+		for _, rawPart := range parts {
+			part, ok := rawPart.(map[string]any)
+			if !ok {
+				transformable = false
+				break
+			}
+			switch strings.TrimSpace(firstNonEmptyString(part["type"])) {
+			case "input_text":
+				text, ok := part["text"].(string)
+				if !ok {
+					transformable = false
+					break
+				}
+				headerSeen = headerSeen || (strings.Contains(text, "Message Type:") && strings.Contains(text, "Payload:"))
+				normalizedParts = append(normalizedParts, map[string]any{"type": "input_text", "text": text})
+			case "encrypted_content":
+				payload, ok := part["encrypted_content"].(string)
+				if !ok || !headerSeen || !isReadableParateraAgentPayload(payload) {
+					transformable = false
+					break
+				}
+				normalizedParts = append(normalizedParts, map[string]any{"type": "input_text", "text": payload})
+			default:
+				transformable = false
+			}
+			if !transformable {
+				break
+			}
+		}
+		if !transformable {
+			continue
+		}
+		normalized := make(map[string]any, len(item)+1)
+		for key, value := range item {
+			normalized[key] = value
+		}
+		normalized["type"] = "message"
+		normalized["role"] = "user"
+		normalized["content"] = normalizedParts
+		delete(normalized, "author")
+		delete(normalized, "recipient")
+		items[i] = normalized
+		changed = true
+	}
+	if !changed {
+		return body, false, nil
+	}
+	reqBody["input"] = items
+	normalized, err := marshalOpenAIUpstreamJSON(reqBody)
+	if err != nil {
+		return body, false, fmt.Errorf("serialize Paratera agent messages: %w", err)
+	}
+	return normalized, true, nil
+}
+
+func isReadableParateraAgentPayload(payload string) bool {
+	payload = strings.TrimSpace(payload)
+	return payload != "" && utf8.ValidString(payload) &&
+		(strings.ContainsAny(payload, " \t\r\n") || len(payload) != len([]rune(payload)))
+}
+
 // normalizeParateraDeepSeekAssistantToolReplay keeps provider messages while
 // moving them before a fully paired function-call block. Paratera rejects
 // assistant messages between a call and its matching output.
