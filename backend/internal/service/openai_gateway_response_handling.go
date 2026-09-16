@@ -49,6 +49,9 @@ func (s *OpenAIGatewayService) handleStreamingResponse(ctx context.Context, resp
 }
 
 func (s *OpenAIGatewayService) handleStreamingResponseWithReasoning(ctx context.Context, resp *http.Response, c *gin.Context, account *Account, startTime time.Time, originalModel, mappedModel, reasoningEffort string) (*openaiStreamingResult, error) {
+	deepSeekReasoningDecorator := newDeepSeekCodexReasoningStreamDecorator(
+		s.shouldDecorateDeepSeekCodexReasoning(c, account),
+	)
 	observer := upstreamResponseModelObserverFromContext(c)
 	if observer == nil {
 		observer = beginUpstreamResponseModelObservation(c)
@@ -650,6 +653,12 @@ func (s *OpenAIGatewayService) handleStreamingResponseWithReasoning(ctx context.
 			if !bytes.Equal(restoredData, dataBytes) {
 				dataBytes = restoredData
 				data = string(restoredData)
+				line = "data: " + data
+				eventType = effectiveOpenAISSEEventType(dataBytes, eventType)
+			}
+			if decoratedData, decorated := deepSeekReasoningDecorator.Decorate(dataBytes, eventType); decorated {
+				dataBytes = decoratedData
+				data = string(decoratedData)
 				line = "data: " + data
 				eventType = effectiveOpenAISSEEventType(dataBytes, eventType)
 			}
@@ -1638,6 +1647,7 @@ func (s *OpenAIGatewayService) handleNonStreamingResponse(ctx context.Context, r
 		return nil, fmt.Errorf("restore OpenAI namespace response: %w", err)
 	}
 	body = restoreCodexToolNamesFromContext(c, body)
+	body = s.decorateDeepSeekCodexReasoningResponse(c, account, body)
 	responseheaders.WriteFilteredHeaders(c.Writer.Header(), resp.Header, s.responseHeaderFilter)
 	// Codex 协议要求 /responses/compact JSON 响应携带 x-codex-turn-state
 	// （codex-api/src/endpoint/compact.rs 从响应头捕获），显式回传。
@@ -1738,6 +1748,7 @@ func (s *OpenAIGatewayService) handleSSEToJSON(resp *http.Response, c *gin.Conte
 			return nil, fmt.Errorf("restore OpenAI namespace response: %w", restoreErr)
 		}
 		restoredBody = restoreCodexToolNamesFromContext(c, restoredBody)
+		restoredBody = s.decorateDeepSeekCodexReasoningResponse(c, account, restoredBody)
 		body = restoredBody
 	} else {
 		if originalModel != mappedModel {
