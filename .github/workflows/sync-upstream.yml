@@ -38,12 +38,13 @@ jobs:
           cache: true
           cache-dependency-path: backend/go.sum
 
-      - name: Test Responses replay normalization
+      - name: Test DeepSeek Responses compatibility fixes
         working-directory: backend
         run: >-
           go test ./internal/service
-          -run '^TestNormalizeOpenAIResponsesAssistantToolReplay'
+          -run '^(TestNormalizeOpenAIResponsesAssistantToolReplay|TestDeepSeekCodexReasoning|TestStripDeepSeekCodexReasoningHeaders)'
           -count=1
 
       - name: Update patched branch
         run: >-
+          git push --force-with-lease origin HEAD:deepseek-responses-replay-fix
