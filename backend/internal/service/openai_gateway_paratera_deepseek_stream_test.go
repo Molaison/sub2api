@@ -272,6 +272,43 @@ data: {"type":"response.output_item.added","output_index":0,"item":{"id":"msg_4"
 	require.Equal(t, 1, countEventType(types, "response.output_item.added"))
 }
 
+// Paratera omits summary_index on reasoning events, and Codex's parser drops
+// the event entirely when it is missing (it destructures delta and
+// summary_index together). The repair must add it so reasoning streams.
+func TestParateraDeepSeekRepairAddsMissingSummaryIndex(t *testing.T) {
+	const upstream = `data: {"type":"response.output_item.added","output_index":0,"item":{"id":"rs_1","type":"reasoning","status":"in_progress"},"model":"DeepSeek-V4.1-Flash"}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_1","output_index":0,"delta":"think","model":"DeepSeek-V4.1-Flash"}
+
+data: {"type":"response.reasoning_summary_text.done","item_id":"rs_1","output_index":0,"text":"think","model":"DeepSeek-V4.1-Flash"}
+
+data: {"type":"response.output_item.done","output_index":0,"item":{"id":"rs_1","type":"reasoning","status":"completed","summary":[{"type":"summary_text","text":"think"}]},"model":"DeepSeek-V4.1-Flash"}
+
+`
+	payloads := ssePayloads(t, runParateraRepair(t, upstream))
+
+	var delta string
+	for _, payload := range payloads {
+		if gjsonGetString(payload, "type") == "response.reasoning_summary_text.delta" {
+			delta = payload
+		}
+	}
+	require.NotEmpty(t, delta, "reasoning delta must survive the repair")
+	require.True(t, gjson.Get(delta, "summary_index").Exists(),
+		"reasoning delta must carry summary_index or Codex discards it")
+	require.Equal(t, int64(0), gjson.Get(delta, "summary_index").Int())
+	// The delta text itself must be untouched.
+	require.Equal(t, "think", gjsonGetString(delta, "delta"))
+}
+
+// A stream that already carries summary_index must pass through byte-for-byte.
+func TestParateraDeepSeekRepairKeepsExistingSummaryIndex(t *testing.T) {
+	const upstream = `data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_1","output_index":0,"summary_index":0,"delta":"think","model":"DeepSeek-V4.1-Flash"}
+
+`
+	require.Equal(t, upstream, runParateraRepair(t, upstream))
+}
+
 func TestShouldRepairParateraDeepSeekStreamScope(t *testing.T) {
 	paratera := &Account{
 		Platform:    PlatformOpenAI,
