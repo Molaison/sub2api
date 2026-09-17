@@ -1483,7 +1483,12 @@ func normalizeOpenAIResponsesWebSocketCompatibilityBody(body []byte, account *Ac
 			return body, false, err
 		}
 	}
-	if next, normalizedReasoningContent, err := normalizeOpenAIResponsesReasoningContentReplay(normalized); err != nil {
+	paratera := shouldUseParateraDeepSeekResponsesCompatibility(account, body)
+	normalizeReasoning := normalizeOpenAIResponsesReasoningContentReplay
+	if paratera {
+		normalizeReasoning = normalizeParateraDeepSeekReasoningReplay
+	}
+	if next, normalizedReasoningContent, err := normalizeReasoning(normalized); err != nil {
 		return body, false, err
 	} else if normalizedReasoningContent {
 		normalized = next
@@ -1496,11 +1501,13 @@ func normalizeOpenAIResponsesWebSocketCompatibilityBody(body []byte, account *Ac
 			normalized = next
 			changed = true
 		}
-		if next, normalizedReasoning, err := normalizeOpenAIAPIKeyStoreFalseReasoningReplay(normalized, false); err != nil {
-			return body, false, err
-		} else if normalizedReasoning {
-			normalized = next
-			changed = true
+		if !paratera {
+			if next, normalizedReasoning, err := normalizeOpenAIAPIKeyStoreFalseReasoningReplay(normalized, false); err != nil {
+				return body, false, err
+			} else if normalizedReasoning {
+				normalized = next
+				changed = true
+			}
 		}
 	}
 	if sanitized, idsChanged, err := sanitizeOpenAIResponsesInputItemIDs(normalized); err != nil {

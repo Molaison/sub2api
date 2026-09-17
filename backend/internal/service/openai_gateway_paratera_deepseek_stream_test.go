@@ -198,8 +198,10 @@ data: {"type":"response.completed","response":{"id":"resp_1","output":[]}}
 		"response.created",
 		"response.in_progress",
 		"response.output_item.added",
+		"response.reasoning_summary_part.added",
 		"response.reasoning_summary_text.delta",
 		"response.reasoning_summary_text.done",
+		"response.reasoning_summary_part.done",
 		"response.output_item.done",
 		"response.output_item.added",
 		"response.content_part.added",
@@ -301,12 +303,21 @@ data: {"type":"response.output_item.done","output_index":0,"item":{"id":"rs_1","
 	require.Equal(t, "think", gjsonGetString(delta, "delta"))
 }
 
-// A stream that already carries summary_index must pass through byte-for-byte.
+// Preserve existing summary indices while repairing the missing item lifecycle.
 func TestParateraDeepSeekRepairKeepsExistingSummaryIndex(t *testing.T) {
 	const upstream = `data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_1","output_index":0,"summary_index":0,"delta":"think","model":"DeepSeek-V4.1-Flash"}
 
 `
-	require.Equal(t, upstream, runParateraRepair(t, upstream))
+	payloads := ssePayloads(t, runParateraRepair(t, upstream))
+	deltas := 0
+	for _, payload := range payloads {
+		if gjson.Get(payload, "type").String() == "response.reasoning_summary_text.delta" {
+			deltas++
+			require.Equal(t, int64(0), gjson.Get(payload, "summary_index").Int())
+			require.Equal(t, "think", gjson.Get(payload, "delta").String())
+		}
+	}
+	require.Equal(t, 1, deltas)
 }
 
 func TestShouldRepairParateraDeepSeekStreamScope(t *testing.T) {

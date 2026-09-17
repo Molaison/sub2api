@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/tidwall/gjson"
-	"github.com/tidwall/sjson"
 )
 
 // Paratera's DeepSeek-V4.1-Flash Responses endpoint drops the assistant
@@ -27,6 +26,7 @@ import (
 // by the output_item.added + content_part.added pair the upstream should have
 // sent. Streams that already announce the item are passed through untouched.
 type parateraDeepSeekItemLifecycleRepair struct {
+	reasoning *parateraReasoningState
 	// announced holds item ids that were opened by an
 	// response.output_item.added event, whether upstream or synthesized.
 	announced map[string]struct{}
@@ -79,23 +79,22 @@ func (r *parateraDeepSeekItemLifecycleRepair) Repair(payload []byte) repairOutco
 		r.model = model
 	}
 
+	if outcome, handled := r.repairReasoning(payload, eventType); handled {
+		return outcome
+	}
+	var prefix [][]byte
+	if eventType == "response.output_item.added" || eventType == "response.output_item.done" ||
+		strings.HasPrefix(eventType, "response.output_text.") || strings.HasPrefix(eventType, "response.content_part.") {
+		prefix = r.finishReasoning()
+	}
+	outcome := r.repairMessage(payload, eventType)
+	outcome.prefix = append(prefix, outcome.prefix...)
+	return outcome
+}
+
+func (r *parateraDeepSeekItemLifecycleRepair) repairMessage(payload []byte, eventType string) repairOutcome {
 	var itemID string
 	switch eventType {
-	case "response.reasoning_summary_text.delta", "response.reasoning_summary_text.done",
-		"response.reasoning_summary_part.added", "response.reasoning_summary_part.done":
-		// Paratera omits summary_index on reasoning events. Codex requires it:
-		// its parser destructures (delta, summary_index) together and silently
-		// drops the event when either is missing, so reasoning never streams to
-		// the client and only arrives with the terminal output_item.done.
-		// DeepSeek emits a single summary part, so index 0 is correct.
-		if gjson.GetBytes(payload, "summary_index").Exists() {
-			return repairOutcome{}
-		}
-		patched, err := sjson.SetBytes(payload, "summary_index", 0)
-		if err != nil {
-			return repairOutcome{}
-		}
-		return repairOutcome{replacement: patched}
 	case "response.output_item.added":
 		itemID = strings.TrimSpace(gjson.GetBytes(payload, "item.id").String())
 		if itemID == "" {
@@ -288,9 +287,6 @@ func transformParateraDeepSeekStream(source io.ReadCloser, destination *io.PipeW
 		}
 
 		outcome := repair.Repair([]byte(data))
-		if outcome.drop {
-			continue
-		}
 		payloadLine := line
 		if outcome.replacement != nil {
 			payloadLine = "data: " + string(outcome.replacement)
@@ -312,7 +308,19 @@ func transformParateraDeepSeekStream(source io.ReadCloser, destination *io.PipeW
 				return
 			}
 		}
-		pending = append(pending, payloadLine)
+		if !outcome.drop {
+			pending = append(pending, payloadLine)
+		}
+		// Flush semantic events promptly instead of buffering small replies
+		// until the entire upstream response finishes.
+		if err := flush(); err != nil {
+			fail(err)
+			return
+		}
+		if err := buffered.Flush(); err != nil {
+			fail(err)
+			return
+		}
 	}
 
 	if err := flush(); err != nil {

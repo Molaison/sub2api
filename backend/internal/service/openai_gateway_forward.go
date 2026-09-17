@@ -152,6 +152,11 @@ func (s *OpenAIGatewayService) Forward(ctx context.Context, c *gin.Context, acco
 		setOpenAIResponsesClientToolMapping(c, mapping)
 	}
 	if parateraDeepSeekResponses {
+		if normalized, changed, normalizeErr := normalizeParateraDeepSeekReasoningReplay(body); normalizeErr != nil {
+			return nil, normalizeErr
+		} else if changed {
+			body = normalized
+		}
 		if normalized, changed, normalizeErr := normalizeParateraDeepSeekAgentMessages(body); normalizeErr != nil {
 			return nil, normalizeErr
 		} else if changed {
