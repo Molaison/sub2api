@@ -1004,6 +1004,11 @@ type GatewayConfig struct {
 	// OpenAICompactModel: /responses/compact 上游使用的模型。
 	// compact 端点支持模型滞后于普通 /responses 时，可用该配置降级规避上游错误。
 	OpenAICompactModel string `mapstructure:"openai_compact_model"`
+	// Standalone search can use a different execution model from the conversation.
+	// Only exact, explicitly listed conversation models are delegated, and only
+	// at /alpha/search; normal Responses/model eligibility is never rewritten.
+	OpenAIAlphaSearchModel           string   `mapstructure:"openai_alpha_search_model"`
+	OpenAIAlphaSearchDelegatedModels []string `mapstructure:"openai_alpha_search_delegated_models"`
 	// OpenAIWS: OpenAI Responses WebSocket 配置（默认开启，可按需回滚到 HTTP）
 	OpenAIWS GatewayOpenAIWSConfig `mapstructure:"openai_ws"`
 	// Live: ChatGPT Frameless Live 会话配置。
@@ -2441,6 +2446,8 @@ func setDefaults() {
 	viper.SetDefault("gateway.openai_ws.scheduler_score_weights.session_sticky", 3.0)
 	// OpenAI HTTP upstream protocol strategy
 	viper.SetDefault("gateway.openai_http2.enabled", true)
+	viper.SetDefault("gateway.openai_alpha_search_model", "")
+	viper.SetDefault("gateway.openai_alpha_search_delegated_models", []string{})
 	viper.SetDefault("gateway.openai_http2.allow_proxy_fallback_to_http1", true)
 	viper.SetDefault("gateway.openai_http2.fallback_error_threshold", 2)
 	viper.SetDefault("gateway.openai_http2.fallback_window_seconds", 60)

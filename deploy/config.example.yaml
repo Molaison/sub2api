@@ -311,6 +311,12 @@ gateway:
   # Use this to avoid compact failures when newer models are not yet supported by the compact endpoint.
   # 当 compact 端点暂未支持更新模型时，可通过这里降级规避失败。
   openai_compact_model: "gpt-5.5"
+  # Optional standalone web.run delegation, only for /alpha/search. Accounts
+  # stay within the caller's group. Normal Responses generation is unaffected.
+  # Both fields must be set; source model names match exactly.
+  openai_alpha_search_model: ""
+  openai_alpha_search_delegated_models: []
+  # Example: model "gpt-5.6-sol", delegated_models ["DeepSeek-V4.1-Flash"].
   # ChatGPT Frameless Live 单会话硬上限（秒）。
   live:
     max_session_duration_seconds: 3600

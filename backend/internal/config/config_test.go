@@ -424,6 +424,16 @@ func TestLoadOpenAIFirstOutputTimeoutsFromEnv(t *testing.T) {
 	require.Equal(t, 240, cfg.Gateway.OpenAIHighEffortFirstOutputTimeoutSeconds)
 }
 
+func TestLoadAlphaSearchDelegationFromEnv(t *testing.T) {
+	resetViperWithJWTSecret(t)
+	t.Setenv("GATEWAY_OPENAI_ALPHA_SEARCH_MODEL", "gpt-5.6-sol")
+	t.Setenv("GATEWAY_OPENAI_ALPHA_SEARCH_DELEGATED_MODELS", "DeepSeek-V4.1-Flash,DeepSeek-V4-Pro-0813")
+	cfg, err := Load()
+	require.NoError(t, err)
+	require.Equal(t, "gpt-5.6-sol", cfg.Gateway.OpenAIAlphaSearchModel)
+	require.Equal(t, []string{"DeepSeek-V4.1-Flash", "DeepSeek-V4-Pro-0813"}, cfg.Gateway.OpenAIAlphaSearchDelegatedModels)
+}
+
 func TestValidateOpenAIFirstOutputTimeoutMinimum(t *testing.T) {
 	resetViperWithJWTSecret(t)
 	cfg, err := Load()

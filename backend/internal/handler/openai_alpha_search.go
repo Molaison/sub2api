@@ -87,8 +87,20 @@ func (h *OpenAIGatewayHandler) AlphaSearch(c *gin.Context) {
 		return
 	}
 
-	channelMapping, _ := h.gatewayService.ResolveChannelMappingAndRestrict(c.Request.Context(), apiKey.GroupID, requestedModel)
-	forwardBody := openAIModelMappedBody(body, channelMapping.Mapped, channelMapping.MappedModel, h.gatewayService.ReplaceModelInBody)
+	// Search execution is a separate capability. A configured delegation stays
+	// inside the caller's group, while preserving the conversation model for
+	// authorization, audit and usage attribution. It does not grant that model
+	// generation support to any account.
+	searchModel := h.alphaSearchExecutionModel(requestedModel)
+	forwardBody := body
+	if searchModel != requestedModel {
+		forwardBody = h.gatewayService.ReplaceModelInBody(body, searchModel)
+		reqLog.Info("openai_alpha_search.delegated",
+			zap.String("conversation_model", requestedModel),
+			zap.String("search_model", searchModel))
+	}
+	channelMapping, _ := h.gatewayService.ResolveChannelMappingAndRestrict(c.Request.Context(), apiKey.GroupID, searchModel)
+	forwardBody = openAIModelMappedBody(forwardBody, channelMapping.Mapped, channelMapping.MappedModel, h.gatewayService.ReplaceModelInBody)
 	subscription, _ := middleware2.GetSubscriptionFromContext(c)
 	service.SetOpsLatencyMs(c, service.OpsAuthLatencyMsKey, time.Since(requestStart).Milliseconds())
 
@@ -130,7 +142,7 @@ func (h *OpenAIGatewayHandler) AlphaSearch(c *gin.Context) {
 			apiKey.GroupID,
 			"",
 			sessionHash,
-			requestedModel,
+			searchModel,
 			failedAccountIDs,
 			service.OpenAIUpstreamTransportHTTPSSE,
 			service.OpenAIEndpointCapabilityAlphaSearch,
@@ -145,7 +157,7 @@ func (h *OpenAIGatewayHandler) AlphaSearch(c *gin.Context) {
 				return
 			}
 			if len(failedAccountIDs) == 0 {
-				cls := classifyNoAccountErrorFromGin(c, h.gatewayService, apiKey, requestedModel, requestedModel, service.PlatformOpenAI)
+				cls := classifyNoAccountErrorFromGin(c, h.gatewayService, apiKey, requestedModel, searchModel, service.PlatformOpenAI)
 				if !cls.ModelNotFound {
 					markOpsRoutingCapacityLimitedIfNoAvailable(c, err)
 				}
@@ -187,8 +199,9 @@ func (h *OpenAIGatewayHandler) AlphaSearch(c *gin.Context) {
 		service.SetOpsLatencyMs(c, service.OpsResponseLatencyMsKey, time.Since(forwardStart).Milliseconds())
 
 		if err == nil {
-			h.gatewayService.ReportOpenAIAccountScheduleResult(account, openAIAccountScheduleModel(c, account, requestedModel, false, result), true, nil)
+			h.gatewayService.ReportOpenAIAccountScheduleResult(account, openAIAccountScheduleModel(c, account, searchModel, false, result), true, nil)
 			if result != nil {
+				result.Model = requestedModel
 				h.recordAlphaSearchUsage(c, apiKey, account, subscription, channelMapping, requestedModel, body, result, subject.UserID)
 			}
 			return
@@ -196,7 +209,7 @@ func (h *OpenAIGatewayHandler) AlphaSearch(c *gin.Context) {
 
 		var failoverErr *service.UpstreamFailoverError
 		if !errors.As(err, &failoverErr) {
-			h.gatewayService.ReportOpenAIAccountScheduleResult(account, openAIAccountScheduleModel(c, account, requestedModel, false, result), false, nil, err)
+			h.gatewayService.ReportOpenAIAccountScheduleResult(account, openAIAccountScheduleModel(c, account, searchModel, false, result), false, nil, err)
 			if c.Writer.Size() == writerSizeBeforeForward {
 				h.errorResponse(c, http.StatusBadGateway, "upstream_error", "Upstream request failed")
 			}
@@ -204,7 +217,7 @@ func (h *OpenAIGatewayHandler) AlphaSearch(c *gin.Context) {
 			return
 		}
 
-		h.gatewayService.ReportOpenAIAccountScheduleResult(account, openAIAccountScheduleModel(c, account, requestedModel, false, result), false, nil, err)
+		h.gatewayService.ReportOpenAIAccountScheduleResult(account, openAIAccountScheduleModel(c, account, searchModel, false, result), false, nil, err)
 		if c.Writer.Size() != writerSizeBeforeForward {
 			h.handleFailoverExhausted(c, failoverErr, true)
 			return
@@ -254,6 +267,22 @@ func (h *OpenAIGatewayHandler) AlphaSearch(c *gin.Context) {
 			zap.Int("switch_count", switchCount),
 		)
 	}
+}
+
+func (h *OpenAIGatewayHandler) alphaSearchExecutionModel(conversationModel string) string {
+	if h == nil || h.cfg == nil {
+		return conversationModel
+	}
+	target := strings.TrimSpace(h.cfg.Gateway.OpenAIAlphaSearchModel)
+	if target == "" {
+		return conversationModel
+	}
+	for _, model := range h.cfg.Gateway.OpenAIAlphaSearchDelegatedModels {
+		if strings.TrimSpace(model) == conversationModel {
+			return target
+		}
+	}
+	return conversationModel
 }
 
 // recordAlphaSearchUsage 为一次成功的 alpha/search 网页搜索落按次计费用量行
