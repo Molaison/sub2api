@@ -27,6 +27,10 @@ import (
 // sent. Streams that already announce the item are passed through untouched.
 type parateraDeepSeekItemLifecycleRepair struct {
 	reasoning *parateraReasoningState
+	// Some upstream streams announce a message before the reasoning phase.
+	// Codex has one active item, so hold empty message announcements until
+	// their first text event instead of allowing reasoning to steal ownership.
+	pendingMessages map[string][][]byte
 	// announced holds item ids that were opened by an
 	// response.output_item.added event, whether upstream or synthesized.
 	announced map[string]struct{}
@@ -40,8 +44,9 @@ type parateraDeepSeekItemLifecycleRepair struct {
 
 func newParateraDeepSeekItemLifecycleRepair() *parateraDeepSeekItemLifecycleRepair {
 	return &parateraDeepSeekItemLifecycleRepair{
-		announced:   make(map[string]struct{}),
-		synthesized: make(map[string]struct{}),
+		pendingMessages: make(map[string][][]byte),
+		announced:       make(map[string]struct{}),
+		synthesized:     make(map[string]struct{}),
 	}
 }
 
@@ -109,6 +114,15 @@ func (r *parateraDeepSeekItemLifecycleRepair) repairMessage(payload []byte, even
 			len(gjson.GetBytes(payload, "item.content").Array()) == 0 {
 			return repairOutcome{drop: true}
 		}
+		if gjson.GetBytes(payload, "item.type").String() == "message" &&
+			len(gjson.GetBytes(payload, "item.content").Array()) == 0 {
+			if _, announced := r.announced[itemID]; !announced {
+				if _, pending := r.pendingMessages[itemID]; !pending {
+					r.pendingMessages[itemID] = [][]byte{append([]byte(nil), payload...)}
+				}
+				return repairOutcome{drop: true}
+			}
+		}
 		r.announced[itemID] = struct{}{}
 		return repairOutcome{}
 	case "response.output_text.delta", "response.output_text.done":
@@ -119,6 +133,12 @@ func (r *parateraDeepSeekItemLifecycleRepair) repairMessage(payload []byte, even
 			return repairOutcome{}
 		}
 		itemID = strings.TrimSpace(gjson.GetBytes(payload, "item_id").String())
+		if eventType == "response.content_part.added" {
+			if pending, ok := r.pendingMessages[itemID]; ok {
+				r.pendingMessages[itemID] = append(pending, append([]byte(nil), payload...))
+				return repairOutcome{drop: true}
+			}
+		}
 	case "response.output_item.done":
 		if strings.TrimSpace(gjson.GetBytes(payload, "item.type").String()) != "message" {
 			return repairOutcome{}
@@ -133,6 +153,14 @@ func (r *parateraDeepSeekItemLifecycleRepair) repairMessage(payload []byte, even
 	}
 	if _, ok := r.announced[itemID]; ok {
 		return repairOutcome{}
+	}
+	if pending, ok := r.pendingMessages[itemID]; ok {
+		delete(r.pendingMessages, itemID)
+		r.announced[itemID] = struct{}{}
+		if len(pending) == 1 {
+			pending = append(pending, r.messageItemAddedEvents(itemID, gjson.GetBytes(payload, "output_index").Int())[1])
+		}
+		return repairOutcome{prefix: pending}
 	}
 	r.announced[itemID] = struct{}{}
 	r.synthesized[itemID] = struct{}{}

@@ -128,3 +128,44 @@ func TestParateraReasoningLateDoneDoesNotDuplicateHistory(t *testing.T) {
 	}
 	require.Equal(t, 1, n)
 }
+
+func TestParateraMessageAnnouncedBeforeReasoningKeepsTextOwner(t *testing.T) {
+	// Production announces an empty message, emits reasoning, then emits its
+	// text. Opening reasoning must not leave that text without an active item.
+	stream := `data: {"type":"response.output_item.added","output_index":0,"item":{"type":"message","id":"msg_early","role":"assistant","content":[]}}
+
+data: {"type":"response.content_part.added","output_index":0,"item_id":"msg_early","content_index":0,"part":{"type":"output_text","text":""}}
+
+data: {"type":"response.reasoning_summary_text.delta","output_index":0,"item_id":"rs_random","delta":"I should call lookup."}
+
+data: {"type":"response.output_text.delta","output_index":0,"item_id":"msg_early","content_index":0,"delta":"Calling lookup."}
+
+data: {"type":"response.output_item.done","output_index":0,"item":{"type":"message","id":"msg_early","role":"assistant","content":[{"type":"output_text","text":"Calling lookup."}]}}
+
+data: {"type":"response.completed","response":{"id":"resp_a","output":[]}}
+
+`
+	active := ""
+	messageAnnouncements := 0
+	textDeltas := 0
+	for _, payload := range ssePayloads(t, runParateraRepair(t, stream)) {
+		e := gjson.Parse(payload)
+		switch e.Get("type").String() {
+		case "response.output_item.added":
+			active = e.Get("item.id").String()
+			if e.Get("item.type").String() == "message" {
+				messageAnnouncements++
+			}
+		case "response.output_item.done":
+			active = ""
+		case "response.output_text.delta", "response.reasoning_summary_text.delta":
+			require.NotEmpty(t, active)
+			require.Equal(t, e.Get("item_id").String(), active)
+			if e.Get("type").String() == "response.output_text.delta" {
+				textDeltas++
+			}
+		}
+	}
+	require.Equal(t, 1, messageAnnouncements)
+	require.Equal(t, 1, textDeltas)
+}
