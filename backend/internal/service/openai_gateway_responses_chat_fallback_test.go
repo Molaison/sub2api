@@ -5,6 +5,7 @@ package service
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -215,12 +216,17 @@ func TestForwardResponses_ChatFallbackRejectsInvalidToolArgumentsAtOutputLimit(t
 	require.NotNil(t, result)
 	require.Equal(t, 4, result.Usage.InputTokens)
 	require.Equal(t, 6492, result.Usage.OutputTokens)
-	require.NotContains(t, rec.Body.String(), "response.function_call_arguments.done")
-	require.NotContains(t, rec.Body.String(), "response.output_item.done")
-	require.NotContains(t, rec.Body.String(), "data: [DONE]")
+	streamBody := rec.Body.String()
+	require.NotContains(t, streamBody, "response.function_call_arguments.done")
+	require.NotContains(t, streamBody, "response.output_item.done")
+	require.NotContains(t, streamBody, "data: [DONE]")
+	require.LessOrEqual(t, strings.Count(streamBody, "event: response.output_item.added"), 1,
+		"a truncated tool call must not be announced more than once")
+	require.LessOrEqual(t, strings.Count(streamBody, "event: response.function_call_arguments.delta"), 1,
+		"a truncated tool call must not emit duplicate argument deltas")
 }
 
-func TestForwardResponses_DeepSeekReasoningOnlyStreamProducesVisibleText(t *testing.T) {
+func TestForwardResponses_DeepSeekReasoningOnlyStreamDoesNotFabricateText(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	body := []byte(`{"model":"deepseek-reasoner","input":"hello","stream":true}`)
@@ -253,10 +259,15 @@ func TestForwardResponses_DeepSeekReasoningOnlyStreamProducesVisibleText(t *test
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	require.True(t, result.Stream)
-	require.Contains(t, rec.Body.String(), "event: response.output_text.delta")
-	require.Contains(t, rec.Body.String(), `"delta":"visible fallback"`)
-	require.Contains(t, rec.Body.String(), `"status":"incomplete"`)
-	require.Contains(t, rec.Body.String(), "data: [DONE]")
+	streamBody := rec.Body.String()
+	require.NotContains(t, streamBody, "event: response.output_text.delta",
+		"reasoning-only stream must not fabricate visible answer text")
+	require.Contains(t, streamBody, "event: response.incomplete")
+	require.NotContains(t, streamBody, "event: response.completed")
+	require.Contains(t, streamBody, `"status":"incomplete"`)
+	require.Contains(t, streamBody, `"type":"reasoning"`)
+	require.Contains(t, streamBody, `"text":"visible fallback"`)
+	require.Contains(t, streamBody, "data: [DONE]")
 }
 
 func TestForwardResponses_AutoSupportedAccountStillUsesResponsesEndpoint(t *testing.T) {
@@ -440,4 +451,153 @@ func TestForwardResponses_ChatFallbackRestoresReasoningFromCache(t *testing.T) {
 
 	// 明文 summary 的 item 被回写进缓存（自愈）。
 	require.Equal(t, "plain thinking", cache.snapshotSets()["item_plain"])
+}
+
+// --- CC 完成边界：无 finish evidence / 截断工具 / 坏 SSE 不得伪装成功 ---
+
+func runCCFallbackStream(t *testing.T, upstreamBody string) (*httptest.ResponseRecorder, *OpenAIForwardResult, error) {
+	t.Helper()
+	gin.SetMode(gin.TestMode)
+	body := []byte(`{"model":"deepseek-reasoner","input":"hello","stream":true}`)
+	rec := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(rec)
+	c.Request = httptest.NewRequest(http.MethodPost, "/v1/responses", bytes.NewReader(body))
+	c.Request.Header.Set("Content-Type", "application/json")
+	upstream := &httpUpstreamRecorder{resp: &http.Response{
+		StatusCode: http.StatusOK,
+		Header:     http.Header{"Content-Type": []string{"text/event-stream"}, "x-request-id": []string{"rid_cc_boundary"}},
+		Body:       io.NopCloser(strings.NewReader(upstreamBody)),
+	}}
+	svc := &OpenAIGatewayService{cfg: rawChatCompletionsTestConfig(), httpUpstream: upstream}
+	result, err := svc.Forward(context.Background(), c, forceChatResponsesFallbackAccount(), body)
+	return rec, result, err
+}
+
+func TestForwardResponses_ChatFallbackStreamWithoutFinishReasonFails(t *testing.T) {
+	upstreamBody := strings.Join([]string{
+		`data: {"id":"c1","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"hello"},"finish_reason":null}]}`,
+		"",
+		"data: [DONE]",
+		"",
+	}, "\n")
+	rec, _, err := runCCFallbackStream(t, upstreamBody)
+	require.Error(t, err, "a stream that ends without finish_reason must not be reported as success")
+	streamBody := rec.Body.String()
+	require.NotContains(t, streamBody, "event: response.completed")
+	require.NotContains(t, streamBody, "data: [DONE]")
+}
+
+func TestForwardResponses_ChatFallbackTruncatedToolAtLengthIsNotDelivered(t *testing.T) {
+	upstreamBody := strings.Join([]string{
+		`data: {"id":"c2","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"tool_calls":[{"index":0,"id":"call_t","type":"function","function":{"name":"exec","arguments":"{}"}}]},"finish_reason":null}]}`,
+		"",
+		`data: {"id":"c2","object":"chat.completion.chunk","choices":[{"index":0,"delta":{},"finish_reason":"length"}]}`,
+		"",
+		"data: [DONE]",
+		"",
+	}, "\n")
+	rec, _, err := runCCFallbackStream(t, upstreamBody)
+	require.NoError(t, err)
+	streamBody := rec.Body.String()
+	require.NotContains(t, streamBody, "event: response.function_call_arguments.done",
+		"a tool truncated by the output limit must not be delivered as executable")
+	require.NotContains(t, streamBody, `"type":"function_call"`,
+		"a truncated tool must not appear as an executable function_call item")
+	require.Contains(t, streamBody, "event: response.incomplete")
+}
+
+func TestForwardResponses_ChatFallbackMalformedSSEFails(t *testing.T) {
+	upstreamBody := strings.Join([]string{
+		`data: {"id":"c3","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"hi"},"finish_reason":null}]}`,
+		"",
+		`data: {this is not json`,
+		"",
+		"data: [DONE]",
+		"",
+	}, "\n")
+	rec, _, err := runCCFallbackStream(t, upstreamBody)
+	require.Error(t, err, "malformed SSE data lines must not be treated as success")
+	require.NotContains(t, rec.Body.String(), "event: response.completed")
+}
+
+// --- reasoning cache budget: bounded accumulated IO, not wall-clock ---
+
+type slowReasoningCache struct {
+	stubGatewayCache
+	setDelay time.Duration
+	getDelay time.Duration
+	sets     int
+	gets     int
+}
+
+func (c *slowReasoningCache) SetReasoningContent(_ context.Context, _ string, _ string, _ time.Duration) error {
+	c.sets++
+	time.Sleep(c.setDelay)
+	return nil
+}
+
+func (c *slowReasoningCache) GetReasoningContent(_ context.Context, _ string) (string, error) {
+	c.gets++
+	time.Sleep(c.getDelay)
+	return "", ErrReasoningContentNotFound
+}
+
+// Many encrypted-only ids must not each burn a full read timeout: the shared
+// budget bounds total cache IO and short-circuits the rest.
+func TestReasoningCacheBudgetBoundsTotalReadIO(t *testing.T) {
+	cache := &slowReasoningCache{getDelay: reasoningCacheOpTimeout}
+	svc := &OpenAIGatewayService{cache: cache}
+	budget := newReasoningCacheBudget()
+
+	start := time.Now()
+	for i := 0; i < 20; i++ {
+		_ = svc.reasoningContentByIDWithBudget(fmt.Sprintf("id_%d", i), budget)
+	}
+	elapsed := time.Since(start)
+
+	require.Less(t, elapsed, reasoningCacheTotalBudget+reasoningCacheOpTimeout+50*time.Millisecond,
+		"total cache IO wait must stay within the shared budget")
+	require.Less(t, cache.gets, 20, "the budget must short-circuit the remaining reads")
+}
+
+// The budget counts IO time, not wall-clock since request start, so reasoning
+// produced after a slow generation is still cached.
+func TestReasoningCacheBudgetIgnoresGenerationTime(t *testing.T) {
+	cache := &reasoningRecordingCache{}
+	svc := &OpenAIGatewayService{cache: cache}
+	budget := newReasoningCacheBudget()
+
+	// Simulate a slow upstream generation before the reasoning item is produced.
+	time.Sleep(reasoningCacheTotalBudget + 50*time.Millisecond)
+
+	svc.setReasoningContent("late_reasoning", "late text", budget)
+	require.Equal(t, "late text", cache.snapshotSets()["late_reasoning"],
+		"reasoning produced after a slow generation must still be cached")
+}
+
+// A nil budget must not panic and must fall back to the per-op timeout.
+func TestReasoningCacheBudgetNilSafe(t *testing.T) {
+	cache := &reasoningRecordingCache{}
+	svc := &OpenAIGatewayService{cache: cache}
+	require.NotPanics(t, func() {
+		svc.setReasoningContent("nil_budget", "text", nil)
+	})
+	require.Equal(t, "text", cache.snapshotSets()["nil_budget"])
+}
+
+func TestForwardResponses_ChatFallbackStopWithPendingToolFails(t *testing.T) {
+	upstreamBody := strings.Join([]string{
+		`data: {"id":"c4","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"tool_calls":[{"index":0,"id":"call_s","type":"function","function":{"name":"exec","arguments":"{}"}}]},"finish_reason":null}]}`,
+		"",
+		`data: {"id":"c4","object":"chat.completion.chunk","choices":[{"index":0,"delta":{},"finish_reason":"stop"}]}`,
+		"",
+		"data: [DONE]",
+		"",
+	}, "\n")
+	rec, _, err := runCCFallbackStream(t, upstreamBody)
+	require.Error(t, err, "finish_reason=stop with a pending tool must not be a success")
+	streamBody := rec.Body.String()
+	require.NotContains(t, streamBody, "event: response.function_call_arguments.done")
+	require.NotContains(t, streamBody, "event: response.completed")
+	require.NotContains(t, streamBody, "data: [DONE]")
 }

@@ -45,7 +45,7 @@ func TestStream_ReasoningOpensItemBeforeDelta(t *testing.T) {
 	}
 }
 
-func TestStream_ReasoningOnlySynthesizesVisibleText(t *testing.T) {
+func TestStream_ReasoningOnlyDoesNotFabricateAnswerText(t *testing.T) {
 	events := collectStreamEvents(t, []string{
 		`{"choices":[{"index":0,"delta":{"role":"assistant","content":null,"reasoning_content":""}}]}`,
 		`{"choices":[{"index":0,"delta":{"reasoning_content":"thinking before final"}}]}`,
@@ -53,38 +53,40 @@ func TestStream_ReasoningOnlySynthesizesVisibleText(t *testing.T) {
 	})
 
 	open := map[int]string{}
-	var sawTextDelta, sawTextDone, sawMessageDone bool
+	var sawReasoningDelta bool
+	var terminal *ResponsesStreamEvent
 	for _, e := range events {
 		switch e.Type {
 		case "response.output_item.added":
 			require.NotNil(t, e.Item)
 			open[e.OutputIndex] = e.Item.Type
-		case "response.output_text.delta":
-			sawTextDelta = true
-			require.Equalf(t, "message", open[e.OutputIndex], "fallback text delta before its item was opened")
+		case "response.reasoning_summary_text.delta":
+			sawReasoningDelta = true
+			require.Equalf(t, "reasoning", open[e.OutputIndex], "reasoning delta before its item was opened")
 			require.Equal(t, "thinking before final", e.Delta)
-		case "response.output_text.done":
-			sawTextDone = true
-			require.Equal(t, "thinking before final", e.Text)
-		case "response.output_item.done":
-			if e.Item != nil && e.Item.Type == "message" {
-				sawMessageDone = true
-				require.Equal(t, "thinking before final", e.Item.Content[0].Text)
-			}
-		case "response.completed":
-			require.NotNil(t, e.Response)
-			require.Equal(t, "incomplete", e.Response.Status)
-			require.NotNil(t, e.Response.IncompleteDetails)
-			require.Equal(t, "max_output_tokens", e.Response.IncompleteDetails.Reason)
-			require.Len(t, e.Response.Output, 2)
-			require.Equal(t, "reasoning", e.Response.Output[0].Type)
-			require.Equal(t, "message", e.Response.Output[1].Type)
-			require.Equal(t, "thinking before final", e.Response.Output[1].Content[0].Text)
+		case "response.output_text.delta":
+			t.Fatalf("reasoning-only stream must not synthesize visible answer text, got delta %q", e.Delta)
+		case "response.completed", "response.incomplete":
+			evt := e
+			terminal = &evt
 		}
 	}
-	require.True(t, sawTextDelta, "reasoning-only stream must produce visible text delta")
-	require.True(t, sawTextDone, "reasoning-only stream must close visible text part")
-	require.True(t, sawMessageDone, "reasoning-only stream must close synthesized message item")
+	require.True(t, sawReasoningDelta, "reasoning-only stream must keep the reasoning delta")
+	require.NotNil(t, terminal, "stream must emit a terminal event")
+	require.Equal(t, "response.incomplete", terminal.Type)
+	require.NotNil(t, terminal.Response)
+	require.Equal(t, "incomplete", terminal.Response.Status)
+	require.NotNil(t, terminal.Response.IncompleteDetails)
+	require.Equal(t, "max_output_tokens", terminal.Response.IncompleteDetails.Reason)
+	require.NotEmpty(t, terminal.Response.Output)
+	require.Equal(t, "reasoning", terminal.Response.Output[0].Type)
+	require.Equal(t, "thinking before final", terminal.Response.Output[0].Summary[0].Text)
+	for _, out := range terminal.Response.Output {
+		if out.Type == "message" {
+			require.Equal(t, "", out.Content[0].Text,
+				"reasoning must not be copied into the assistant message body")
+		}
+	}
 }
 
 func TestStream_ReasoningOnlyBlankDoesNotSynthesizeVisibleText(t *testing.T) {
@@ -243,7 +245,7 @@ func TestStream_InvalidToolArgumentsAreRejectedBeforeFinalize(t *testing.T) {
 	require.ErrorContains(t, err, "invalid JSON")
 }
 
-func TestStream_ValidToolCallAtOutputLimitKeepsIncompleteResponse(t *testing.T) {
+func TestStream_TruncatedToolCallAtOutputLimitIsNotDelivered(t *testing.T) {
 	idx := 0
 	state := NewChatCompletionsToResponsesStreamState("deepseek-v4-flash")
 	chunk := &ChatCompletionsChunk{
@@ -271,19 +273,31 @@ func TestStream_ValidToolCallAtOutputLimitKeepsIncompleteResponse(t *testing.T) 
 
 	require.NoError(t, state.ValidateToolCallArguments())
 	events := FinalizeChatCompletionsResponsesStream(state)
-	var sawArgsDone, sawIncomplete bool
+	var sawArgsDone, sawItemDone, sawIncomplete bool
+	var terminalType string
 	for _, event := range events {
 		switch event.Type {
 		case "response.function_call_arguments.done":
 			sawArgsDone = true
-			require.Equal(t, `{}`, event.Arguments)
-		case "response.completed":
+		case "response.output_item.done":
+			if event.Item != nil && event.Item.Type == "function_call" {
+				sawItemDone = true
+			}
+		case "response.completed", "response.incomplete":
+			terminalType = event.Type
 			require.NotNil(t, event.Response)
 			sawIncomplete = event.Response.Status == "incomplete"
+			for _, out := range event.Response.Output {
+				require.NotEqual(t, "function_call", out.Type,
+					"a tool call truncated by the output limit must not appear in terminal output")
+			}
 		}
 	}
-	require.True(t, sawArgsDone)
+	require.False(t, sawArgsDone, "truncated tool call must not emit function_call_arguments.done")
+	require.False(t, sawItemDone, "truncated tool call must not emit an executable output_item.done")
 	require.True(t, sawIncomplete)
+	require.Equal(t, "response.incomplete", terminalType,
+		"output-limit responses must terminate with response.incomplete, not response.completed")
 }
 
 // TestStream_SSEWireComplete drives the full stream through SSE encoding and

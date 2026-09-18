@@ -601,7 +601,11 @@ func shouldUseParateraDeepSeekResponsesCompatibility(account *Account, body []by
 	if account == nil || !account.IsOpenAIApiKey() {
 		return false
 	}
-	return isParateraDeepSeekResponsesEndpoint(account.GetOpenAIBaseURL(), gjson.GetBytes(body, "model").String())
+	// Gate on the model that will actually be sent upstream (after account-level
+	// model mapping), not the client-visible alias, so an alias cannot bypass the
+	// verified-provider repair and a non-Paratera target cannot inherit it.
+	requested := gjson.GetBytes(body, "model").String()
+	return isParateraDeepSeekResponsesEndpoint(account.GetOpenAIBaseURL(), account.GetMappedModel(requested))
 }
 
 const (
@@ -753,6 +757,7 @@ func reorderCompletedParateraToolReplayBlock(items []any) ([]any, int, bool) {
 	pending := make(map[string]int)
 	assistantMessages := make([]any, 0)
 	toolItems := make([]any, 0)
+	sawToolOutput := false
 	for i, rawItem := range items {
 		item, ok := rawItem.(map[string]any)
 		if !ok {
@@ -773,6 +778,7 @@ func reorderCompletedParateraToolReplayBlock(items []any) ([]any, int, bool) {
 				return nil, 0, false
 			}
 			pending[callID]--
+			sawToolOutput = true
 			toolItems = append(toolItems, rawItem)
 			if allParateraToolCallsCompleted(pending) {
 				reordered := make([]any, 0, len(assistantMessages)+len(toolItems))
@@ -782,6 +788,13 @@ func reorderCompletedParateraToolReplayBlock(items []any) ([]any, int, bool) {
 			}
 		default:
 			if !isOpenAIResponsesAssistantMessage(item) {
+				return nil, 0, false
+			}
+			// An assistant message that follows a tool result is an observation
+			// about that result, not a preface the upstream rejects. Hoisting it
+			// above the calls would present a conclusion before its evidence, so
+			// the block is left exactly as the client replayed it.
+			if sawToolOutput {
 				return nil, 0, false
 			}
 			assistantMessages = append(assistantMessages, rawItem)

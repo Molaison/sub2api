@@ -31,6 +31,29 @@ func TestParateraPassthroughActuallySendsReasoningContent(t *testing.T) {
 	require.Equal(t, "Keep NEBULA_72639", gjson.GetBytes(upstream.lastBody, "input.0.content.0.text").String())
 }
 
+// When a reasoning item carries both representations and they disagree, the
+// content the client just replayed wins; a stale non-empty content must not be
+// forwarded silently.
+func TestParateraReasoningReplayPrefersClientReplayOnMismatch(t *testing.T) {
+	body := []byte(`{"model":"DeepSeek-V4.1-Flash","store":false,"input":[` +
+		`{"type":"reasoning","id":"rs_x","summary":[{"type":"summary_text","text":"NEW"}],` +
+		`"content":[{"type":"output_text","text":"OLD"}]}]}`)
+	normalized, changed, err := normalizeParateraDeepSeekReasoningReplay(body)
+	require.NoError(t, err)
+	require.True(t, changed)
+	require.Equal(t, "NEW", gjson.GetBytes(normalized, "input.0.content.0.text").String())
+	require.Equal(t, "output_text", gjson.GetBytes(normalized, "input.0.content.0.type").String())
+
+	// Agreement is left untouched.
+	same := []byte(`{"model":"DeepSeek-V4.1-Flash","store":false,"input":[` +
+		`{"type":"reasoning","id":"rs_y","summary":[{"type":"summary_text","text":"SAME"}],` +
+		`"content":[{"type":"output_text","text":"SAME"}]}]}`)
+	unchanged, changed, err := normalizeParateraDeepSeekReasoningReplay(same)
+	require.NoError(t, err)
+	require.False(t, changed)
+	require.JSONEq(t, string(same), string(unchanged))
+}
+
 func TestParateraReasoningReplaySurvivesPassthroughNormalization(t *testing.T) {
 	body := []byte(`{"model":"DeepSeek-V4.1-Flash","store":false,"input":[{"type":"reasoning","id":"rs_saved","summary":[{"type":"summary_text","text":"marker=NEBULA_72639"}]},{"type":"function_call","name":"lookup","call_id":"call_a","arguments":"{}"},{"type":"function_call_output","call_id":"call_a","output":"ok"}]}`)
 	converted, changed, err := normalizeParateraDeepSeekReasoningReplay(body)

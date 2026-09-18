@@ -268,6 +268,8 @@ func TestChatCompletionsChunkToResponsesEvents_CustomToolCallStream(t *testing.T
 	}
 
 	events := ChatCompletionsChunkToResponsesEvents(chunk, state)
+	// Tool items are only delivered behind trusted completion evidence.
+	state.FinishReason = "tool_calls"
 	events = append(events, FinalizeChatCompletionsResponsesStream(state)...)
 
 	var added, inputDone, itemDone *ResponsesStreamEvent
@@ -330,6 +332,8 @@ func TestChatCompletionsChunkToResponsesEvents_MixedCustomNamespaceAliasStream(t
 		Index: &idx, ID: "call_alias", Function: ChatFunctionCall{Name: "functions__exec", Arguments: `not-json`},
 	}}}}}}
 	events := ChatCompletionsChunkToResponsesEvents(chunk, state)
+	// Tool items are only delivered behind trusted completion evidence.
+	state.FinishReason = "tool_calls"
 	events = append(events, FinalizeChatCompletionsResponsesStream(state)...)
 
 	for _, evt := range events {
@@ -367,6 +371,8 @@ func TestChatCompletionsChunkToResponsesEvents_ExplicitFunctionOwnsCustomAliasCo
 		Index: &idx, ID: "call_function", Function: ChatFunctionCall{Name: "functions__exec", Arguments: `{"path":"/tmp"}`},
 	}}}}}}
 	events := ChatCompletionsChunkToResponsesEvents(chunk, state)
+	// Tool items are only delivered behind trusted completion evidence.
+	state.FinishReason = "tool_calls"
 	events = append(events, FinalizeChatCompletionsResponsesStream(state)...)
 
 	for _, evt := range events {
@@ -480,6 +486,8 @@ func TestChatCompletionsChunkToResponsesEvents_ToolSearchCallStream(t *testing.T
 	}
 
 	events := ChatCompletionsChunkToResponsesEvents(chunk, state)
+	// Tool items are only delivered behind trusted completion evidence.
+	state.FinishReason = "tool_calls"
 	events = append(events, FinalizeChatCompletionsResponsesStream(state)...)
 
 	var added, itemDone *ResponsesStreamEvent
@@ -685,6 +693,8 @@ func TestChatCompletionsChunkToResponsesEvents_CustomToolNameArrivesLate(t *test
 	var events []ResponsesStreamEvent
 	events = append(events, ChatCompletionsChunkToResponsesEvents(chunk1, state)...)
 	events = append(events, ChatCompletionsChunkToResponsesEvents(chunk2, state)...)
+	// Tool items are only delivered behind trusted completion evidence.
+	state.FinishReason = "tool_calls"
 	events = append(events, FinalizeChatCompletionsResponsesStream(state)...)
 
 	addedCount := 0
@@ -720,6 +730,8 @@ func TestChatCompletionsChunkToResponsesEvents_FunctionToolNameArrivesLate(t *te
 	var events []ResponsesStreamEvent
 	events = append(events, ChatCompletionsChunkToResponsesEvents(chunk1, state)...)
 	events = append(events, ChatCompletionsChunkToResponsesEvents(chunk2, state)...)
+	// Tool items are only delivered behind trusted completion evidence.
+	state.FinishReason = "tool_calls"
 	events = append(events, FinalizeChatCompletionsResponsesStream(state)...)
 
 	deltas := ""
@@ -1044,6 +1056,8 @@ func TestChatCompletionsChunkToResponsesEvents_NamespacedToolCallStream(t *testi
 	}
 
 	events := ChatCompletionsChunkToResponsesEvents(chunk, state)
+	// Tool items are only delivered behind trusted completion evidence.
+	state.FinishReason = "tool_calls"
 	events = append(events, FinalizeChatCompletionsResponsesStream(state)...)
 
 	var added, itemDone *ResponsesStreamEvent
@@ -1113,6 +1127,8 @@ func TestChatCompletionsChunkToResponsesEvents_NamespacedToolNameArrivesLate(t *
 	var events []ResponsesStreamEvent
 	events = append(events, ChatCompletionsChunkToResponsesEvents(chunk1, state)...)
 	events = append(events, ChatCompletionsChunkToResponsesEvents(chunk2, state)...)
+	// Tool items are only delivered behind trusted completion evidence.
+	state.FinishReason = "tool_calls"
 	events = append(events, FinalizeChatCompletionsResponsesStream(state)...)
 
 	addedCount := 0
@@ -1151,6 +1167,8 @@ func TestChatCompletionsChunkToResponsesEvents_FunctionToolStreamUnaffected(t *t
 	}
 
 	events := ChatCompletionsChunkToResponsesEvents(chunk, state)
+	// Tool items are only delivered behind trusted completion evidence.
+	state.FinishReason = "tool_calls"
 	events = append(events, FinalizeChatCompletionsResponsesStream(state)...)
 
 	sawArgsDelta := false

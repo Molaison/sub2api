@@ -1,0 +1,384 @@
+data: {"type":"response.created","response":{"id":"resp_-REZvdx6V0ug0tsLEZHsqyjjztTQQhRQGxRdTVl42RVxKiFRV6oOYwjmqbhMI3XajZI85Z3raeeh2waPJfXpybaJBGmwYrEjDARau-jExKbSmAq_kGoVra7dkzb6_c2aLex-F_VMQwEHkGdvk4QQnxu4mn8pDZi4pLuyiY9Xl5JF8M0-FjJs8woE68u1ISkaZHWb1oGNRb6jvEv9chyQYtxxkloxmq-1As4iXXNYXiIxTTPBFuQxLM3-V2JlFtR9X90=","created_at":1789624867,"metadata":{"_litellm_tpm_reserved_model":"DeepSeek-V4.1-Flash","model_group":"e577d746-c486-4684-810f-b11138e4e2d8"},"model":"DeepSeek-V4.1-Flash","object":"response","output":[],"parallel_tool_calls":true,"tool_choice":"none","tools":[],"top_p":1.0,"reasoning":{"effort":null,"summary":null},"status":"in_progress","store":true},"model":"DeepSeek-V4.1-Flash"}
+
+data: {"type":"response.in_progress","response":{"id":"resp_-REZvdx6V0ug0tsLEZHsqyjjztTQQhRQGxRdTVl42RVxKiFRV6oOYwjmqbhMI3XajZI85Z3raeeh2waPJfXpybaJBGmwYrEjDARau-jExKbSmAq_kGoVra7dkzb6_c2aLex-F_VMQwEHkGdvk4QQnxu4mn8pDZi4pLuyiY9Xl5JF8M0-FjJs8woE68u1ISkaZHWb1oGNRb6jvEv9chyQYtxxkloxmq-1As4iXXNYXiIxTTPBFuQxLM3-V2JlFtR9X90=","created_at":1789624867,"metadata":{"_litellm_tpm_reserved_model":"DeepSeek-V4.1-Flash","model_group":"e577d746-c486-4684-810f-b11138e4e2d8"},"model":"DeepSeek-V4.1-Flash","object":"response","output":[],"parallel_tool_calls":true,"tool_choice":"none","tools":[],"top_p":1.0,"reasoning":{"effort":null,"summary":null},"status":"in_progress","store":true},"model":"DeepSeek-V4.1-Flash"}
+
+data: {"item":{"id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","status":"in_progress","summary":[],"type":"reasoning"},"model":"DeepSeek-V4.1-Flash","output_index":0,"type":"response.output_item.added"}
+
+data: {"item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","model":"DeepSeek-V4.1-Flash","output_index":0,"part":{"text":"","type":"summary_text"},"summary_index":0,"type":"response.reasoning_summary_part.added"}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"We","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" need","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" answer","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" based","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" only","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" progress","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" notes","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":".","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" User","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" asks","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":":","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" \"","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"From","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" your","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" progress","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" notes","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" only","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":":","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" how","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" many","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" files","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" have","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" been","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" read","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" in","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" this","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" turn","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":",","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" and","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" what","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" was","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" the","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" running","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" total","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" before","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" part","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"06","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"?","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" Reply","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" '","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"files","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"=<","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"n","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":">","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" total","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"=<","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"n","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":">'","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" or","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" UN","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"KNOWN","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" if","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" the","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" notes","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" are","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" not","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" available","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":".","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" Do","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" not","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" call","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" tools","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":".\"\n\n","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"We","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" have","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" progress","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" notes","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" for","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" this","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" turn","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":":","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" \"","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"I","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" have","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" already","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" read","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" part","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"01","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":".txt","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" through","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" part","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"05","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":".txt","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":".","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" The","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" running","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" total","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" is","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" ","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"743","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":".","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" The","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" next","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" file","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" to","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" read","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" is","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" part","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"06","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":".txt","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":".\"\n\n","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"Question","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":":","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" how","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" many","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" files","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" have","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" been","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" read","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" in","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" this","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" turn","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"?","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" part","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"01","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" through","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" part","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"05","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" =","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" ","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"5","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" files","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":".","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" Running","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" total","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" before","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" part","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"06","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"?","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" It","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" says","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" running","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" total","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" is","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" ","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"743","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":".","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" That","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" is","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" before","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" part","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"06","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":".","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" So","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" files","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"=","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"5","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" total","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"=","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"743","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":".\n\n","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"Need","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" answer","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" exactly","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" '","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"files","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"=<","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"n","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":">","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" total","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"=<","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"n","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":">","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"'.","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" So","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" files","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"=","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"5","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":" total","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"=","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":"743","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","output_index":0,"delta":".","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","model":"DeepSeek-V4.1-Flash","output_index":0,"summary_index":0,"text":"We need answer based only progress notes. User asks: \"From your progress notes only: how many files have been read in this turn, and what was the running total before part06? Reply 'files=\u003cn\u003e total=\u003cn\u003e' or UNKNOWN if the notes are not available. Do not call tools.\"\n\nWe have progress notes for this turn: \"I have already read part01.txt through part05.txt. The running total is 743. The next file to read is part06.txt.\"\n\nQuestion: how many files have been read in this turn? part01 through part05 = 5 files. Running total before part06? It says running total is 743. That is before part06. So files=5 total=743.\n\nNeed answer exactly 'files=\u003cn\u003e total=\u003cn\u003e'. So files=5 total=743.","type":"response.reasoning_summary_text.done"}
+
+data: {"item_id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","model":"DeepSeek-V4.1-Flash","output_index":0,"part":{"text":"We need answer based only progress notes. User asks: \"From your progress notes only: how many files have been read in this turn, and what was the running total before part06? Reply 'files=\u003cn\u003e total=\u003cn\u003e' or UNKNOWN if the notes are not available. Do not call tools.\"\n\nWe have progress notes for this turn: \"I have already read part01.txt through part05.txt. The running total is 743. The next file to read is part06.txt.\"\n\nQuestion: how many files have been read in this turn? part01 through part05 = 5 files. Running total before part06? It says running total is 743. That is before part06. So files=5 total=743.\n\nNeed answer exactly 'files=\u003cn\u003e total=\u003cn\u003e'. So files=5 total=743.","type":"summary_text"},"summary_index":0,"type":"response.reasoning_summary_part.done"}
+
+data: {"item":{"id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","status":"completed","summary":[{"text":"We need answer based only progress notes. User asks: \"From your progress notes only: how many files have been read in this turn, and what was the running total before part06? Reply 'files=\u003cn\u003e total=\u003cn\u003e' or UNKNOWN if the notes are not available. Do not call tools.\"\n\nWe have progress notes for this turn: \"I have already read part01.txt through part05.txt. The running total is 743. The next file to read is part06.txt.\"\n\nQuestion: how many files have been read in this turn? part01 through part05 = 5 files. Running total before part06? It says running total is 743. That is before part06. So files=5 total=743.\n\nNeed answer exactly 'files=\u003cn\u003e total=\u003cn\u003e'. So files=5 total=743.","type":"summary_text"}],"type":"reasoning"},"model":"DeepSeek-V4.1-Flash","output_index":0,"type":"response.output_item.done"}
+
+data: {"type":"response.output_item.added","output_index":0,"item":{"id":"msg_930003fc-fb94-4a06-b8f0-a687549f2b5e","type":"message","role":"assistant","status":"in_progress","content":[]},"model":"DeepSeek-V4.1-Flash"}
+
+data: {"type":"response.content_part.added","item_id":"msg_930003fc-fb94-4a06-b8f0-a687549f2b5e","output_index":0,"content_index":0,"part":{"type":"output_text","text":"","annotations":[]},"model":"DeepSeek-V4.1-Flash"}
+
+data: {"type":"response.output_text.delta","item_id":"msg_930003fc-fb94-4a06-b8f0-a687549f2b5e","output_index":0,"content_index":0,"delta":"files","model":"DeepSeek-V4.1-Flash"}
+
+data: {"type":"response.output_text.delta","item_id":"msg_930003fc-fb94-4a06-b8f0-a687549f2b5e","output_index":0,"content_index":0,"delta":"=","model":"DeepSeek-V4.1-Flash"}
+
+data: {"type":"response.output_text.delta","item_id":"msg_930003fc-fb94-4a06-b8f0-a687549f2b5e","output_index":0,"content_index":0,"delta":"5","model":"DeepSeek-V4.1-Flash"}
+
+data: {"type":"response.output_text.delta","item_id":"msg_930003fc-fb94-4a06-b8f0-a687549f2b5e","output_index":0,"content_index":0,"delta":" total","model":"DeepSeek-V4.1-Flash"}
+
+data: {"type":"response.output_text.delta","item_id":"msg_930003fc-fb94-4a06-b8f0-a687549f2b5e","output_index":0,"content_index":0,"delta":"=","model":"DeepSeek-V4.1-Flash"}
+
+data: {"type":"response.output_text.delta","item_id":"msg_930003fc-fb94-4a06-b8f0-a687549f2b5e","output_index":0,"content_index":0,"delta":"743","model":"DeepSeek-V4.1-Flash"}
+
+data: {"type":"response.output_text.done","item_id":"msg_930003fc-fb94-4a06-b8f0-a687549f2b5e","output_index":0,"content_index":0,"text":"files=5 total=743","model":"DeepSeek-V4.1-Flash"}
+
+data: {"type":"response.content_part.done","item_id":"msg_930003fc-fb94-4a06-b8f0-a687549f2b5e","output_index":0,"content_index":0,"part":{"type":"reasoning_text","reasoning":"We need answer based only progress notes. User asks: \"From your progress notes only: how many files have been read in this turn, and what was the running total before part06? Reply 'files=<n> total=<n>' or UNKNOWN if the notes are not available. Do not call tools.\"\n\nWe have progress notes for this turn: \"I have already read part01.txt through part05.txt. The running total is 743. The next file to read is part06.txt.\"\n\nQuestion: how many files have been read in this turn? part01 through part05 = 5 files. Running total before part06? It says running total is 743. That is before part06. So files=5 total=743.\n\nNeed answer exactly 'files=<n> total=<n>'. So files=5 total=743."},"model":"DeepSeek-V4.1-Flash"}
+
+data: {"type":"response.output_item.done","output_index":0,"sequence_number":1,"item":{"id":"msg_930003fc-fb94-4a06-b8f0-a687549f2b5e","status":"completed","type":"message","role":"assistant","content":[{"type":"output_text","text":"files=5 total=743","annotations":[]}]},"model":"DeepSeek-V4.1-Flash"}
+
+data: {"type":"response.completed","response":{"id":"resp_rwUn6L09LC9LcPQMFpgsdSE5S-L_UBcUvo8wtLr_Eu0b6MmAFCLSVsPdmtPpfSz5sZ-O6Pf17-xINwbVfUD40VeDPy7xp3z8Yqbd6KJgPUSeB38UtsqspVo4PSsDJhFYLyfhn76ke_EHI8LF04rqw9ZFcvsz_M3PIb7qiD9s0laNWag-jDQ4PXTwh4Okn9sJB3QaFmSBBqmHlM2L-Q8OBDbR1OehuB4IPiunRh-XuFMfcDbZ7XWJC2sKyder2bUvq9CIYHulOUKtjnSM9WcOE7gzBT1Bppk8qDlgKrMJBHNG0JSfbvF2XWdgpgPNlqQ4cQSOn17x8Pa7ZwOAhJrg0dQpxMucK58R4VQ5gjBvr4wg7Z3qMnhRzSILOQsu1fWUDHCdZYsmdxt6RaeV9wyF06G80FHmZH11kQboFp0jwUr8IKsOYmtQClPOOwd8gzPSkX4=","created_at":1789624867,"metadata":{},"model":"DeepSeek-V4.1-Flash","object":"response","output":[{"id":"rs_b228f7c6-ba0a-41f0-9513-c3a8d855dfe3","status":"completed","summary":[{"text":"We need answer based only progress notes. User asks: \"From your progress notes only: how many files have been read in this turn, and what was the running total before part06? Reply 'files=\u003cn\u003e total=\u003cn\u003e' or UNKNOWN if the notes are not available. Do not call tools.\"\n\nWe have progress notes for this turn: \"I have already read part01.txt through part05.txt. The running total is 743. The next file to read is part06.txt.\"\n\nQuestion: how many files have been read in this turn? part01 through part05 = 5 files. Running total before part06? It says running total is 743. That is before part06. So files=5 total=743.\n\nNeed answer exactly 'files=\u003cn\u003e total=\u003cn\u003e'. So files=5 total=743.","type":"summary_text"}],"type":"reasoning"},{"type":"message","id":"9d1bd53b-67b4-4b8e-856a-cad4f8590576","status":"completed","role":"assistant","content":[{"type":"output_text","text":"files=5 total=743","annotations":[]}]}],"parallel_tool_calls":false,"temperature":0.0,"tool_choice":"auto","tools":[],"status":"completed","text":{},"usage":{"input_tokens":183,"input_tokens_details":{"cached_tokens":0},"output_tokens":179,"output_tokens_details":{"reasoning_tokens":172},"total_tokens":362}},"model":"DeepSeek-V4.1-Flash"}
+
+data: [DONE]
+

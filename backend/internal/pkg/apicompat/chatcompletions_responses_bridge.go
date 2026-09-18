@@ -13,6 +13,12 @@ import (
 const (
 	toolOutputMediaMarker      = "[Tool output media moved to the following user message]"
 	toolOutputMediaAttribution = "[Tool output media for call %s]"
+
+	// Bounds on the deferred tool tail. Once a tool fragment is seen the whole
+	// tail is buffered until trusted completion; these caps keep that buffer
+	// finite and turn runaway/abusive streams into an explicit protocol error.
+	maxDeferredPhases = 256
+	maxDeferredBytes  = 8 << 20
 )
 
 type toolOutputMediaByCallID map[string][]ChatContentPart
@@ -449,19 +455,25 @@ func buildChatMessagesFromItems(messages []ChatMessage, rawItems []json.RawMessa
 		itemType := rawString(item["type"])
 		switch itemType {
 		case "reasoning":
-			if txt := extractResponsesReasoningText(item); txt != "" {
-				pendingReasoning = txt
-			} else if opts != nil && opts.ReasoningContentByID != nil {
+			txt := extractResponsesReasoningText(item)
+			if txt == "" && opts != nil && opts.ReasoningContentByID != nil {
 				// No plaintext summary (encrypted-only reasoning, e.g. after codex
 				// remote compaction): fall back to the gateway-side cache keyed
 				// by the reasoning item id, which always round-trips in history.
 				if id := rawString(item["id"]); id != "" {
-					if cached := opts.ReasoningContentByID(id); cached != "" {
-						pendingReasoning = cached
-					}
+					txt = opts.ReasoningContentByID(id)
 				}
 			}
-			if pendingReasoning != "" {
+			if txt != "" {
+				// Consecutive reasoning items (a semantic phase that produced two
+				// adjacent reasoning segments) must both survive. Overwriting
+				// pendingReasoning with the latest text would silently drop the
+				// earlier segment; append in order instead.
+				if pendingReasoning == "" {
+					pendingReasoning = txt
+				} else {
+					pendingReasoning += "\n" + txt
+				}
 				lastTurnReasoning = pendingReasoning
 			}
 			continue
@@ -1408,9 +1420,6 @@ func chatMessageToResponsesOutput(message ChatMessage, customTools, functionTool
 	}
 
 	text := chatMessageContentText(message.Content)
-	if text == "" && strings.TrimSpace(reasoning) != "" && len(message.ToolCalls) == 0 {
-		text = reasoning
-	}
 	if text != "" || len(message.ToolCalls) == 0 {
 		outputs = append(outputs, ResponsesOutput{
 			Type: "message",
@@ -1556,6 +1565,21 @@ func ChatUsageToResponsesUsage(usage *ChatUsage) *ResponsesUsage {
 			out.CacheCreationInputTokens = usage.PromptTokensDetails.CacheCreationTokens
 		}
 	}
+	// completion_tokens_details.reasoning_tokens is the Chat Completions field
+	// that carries the model's reasoning token count. Without this mapping the
+	// Responses output_tokens_details.reasoning_tokens stayed 0 even when the
+	// upstream reported reasoning, which is exactly the production symptom.
+	if d := usage.CompletionTokensDetails; d != nil {
+		if d.ReasoningTokens > 0 || d.AudioTokens > 0 ||
+			d.AcceptedPredictionTokens > 0 || d.RejectedPredictionTokens > 0 {
+			out.OutputTokensDetails = &ResponsesOutputTokensDetails{
+				ReasoningTokens:          d.ReasoningTokens,
+				AudioTokens:              d.AudioTokens,
+				AcceptedPredictionTokens: d.AcceptedPredictionTokens,
+				RejectedPredictionTokens: d.RejectedPredictionTokens,
+			}
+		}
+	}
 	return out
 }
 
@@ -1575,16 +1599,29 @@ type ChatCompletionsToResponsesStreamState struct {
 	// the order of items in the final response.output array.
 	nextOutputIndex int
 
-	// Reasoning item lifecycle. DeepSeek-style upstreams stream all
-	// reasoning_content before any content, so reasoning is modeled as its own
-	// "reasoning" output item that must be opened (output_item.added) before any
-	// reasoning delta and closed before the message/tool items open.
+	// completedItems holds the canonical output items in the exact order their
+	// output_item.done events were delivered. The terminal response.output is
+	// built from this list so item ids and ordering always match what the client
+	// already persisted; it is never regenerated.
+	completedItems []ResponsesOutput
+
+	// messageDelivered / toolDelivered record whether a message or tool item was
+	// ever delivered, so finalize only synthesizes an empty assistant message
+	// when the completion produced neither.
+	messageDelivered bool
+	toolDelivered    bool
+
+	// Reasoning item lifecycle for the *currently open* reasoning phase. A
+	// provider may emit reasoning, then content, then reasoning again; each
+	// semantic phase is its own ordered item, so the builder/id/index are reset
+	// every time a new reasoning item is opened.
 	ReasoningItemID string
 	ReasoningIndex  int
 	ReasoningOpen   bool
-	ReasoningDone   bool
 
-	// Message item + output_text content-part lifecycle.
+	// Message item + output_text content-part lifecycle for the *currently open*
+	// message phase. Closed (done) before a later reasoning/tool phase opens, so
+	// an interleaved reasoning B/message Y pair is stored as two separate items.
 	MessageItemID string
 	MessageIndex  int
 	TextPartOpen  bool
@@ -1596,6 +1633,24 @@ type ChatCompletionsToResponsesStreamState struct {
 	ToolCalls       map[int]*ChatToolCall
 	ToolItemIDs     map[int]string
 	ToolOutputIndex map[int]int
+
+	// toolOrder records tool_call indices in first-seen order so delivery is
+	// stable even when the upstream index is sparse (e.g. 2 and 5).
+	toolOrder []int
+
+	// toolFlushedIdx records indices already delivered, so a stray late fragment
+	// is reported instead of silently dropped.
+	toolFlushedIdx map[int]bool
+	ProtocolError  error
+
+	// deferred is true once tool fragments have been seen but the choice has not
+	// yet produced trusted completion evidence. While deferred, no output is
+	// streamed live; phases are recorded in deferredPhases and flushed in causal
+	// order on finish/finalize (see flushDeferredForFinish).
+	deferred        bool
+	deferredPhases  []*deferredPhase
+	currentDeferred *deferredPhase
+	deferredBytes   int
 
 	// CustomTools 是客户端请求中 custom/freeform 工具的名字集合（见
 	// CustomToolNames）。命中的调用按 custom_tool_call 生命周期下发，codex 才能
@@ -1646,6 +1701,7 @@ func NewChatCompletionsToResponsesStreamState(model string) *ChatCompletionsToRe
 		toolIsToolSearch: make(map[int]bool),
 		toolNamespace:    make(map[int]NamespacedToolName),
 		toolAnnounced:    make(map[int]bool),
+		toolFlushedIdx:   make(map[int]bool),
 	}
 }
 
@@ -1682,6 +1738,26 @@ func (state *ChatCompletionsToResponsesStreamState) allocOutputIndex() int {
 	return idx
 }
 
+// deferredPhaseKind identifies the semantic phase of a buffered output segment.
+type deferredPhaseKind int
+
+const (
+	deferredReasoningPhase deferredPhaseKind = iota
+	deferredMessagePhase
+	deferredToolPhase
+)
+
+// deferredPhase is one buffered semantic phase. Once a tool fragment is seen,
+// the tool segment and every later reasoning/message phase are recorded here
+// (instead of streamed live) and only emitted, in order, once the choice has
+// finished. This keeps tool delivery behind trusted completion evidence and
+// keeps item.done ordering causal.
+type deferredPhase struct {
+	kind        deferredPhaseKind
+	text        strings.Builder
+	toolIndices []int
+}
+
 // ChatCompletionsChunkToResponsesEvents converts one Chat Completions stream
 // chunk into zero or more Responses stream events.
 func ChatCompletionsChunkToResponsesEvents(
@@ -1708,60 +1784,80 @@ func ChatCompletionsChunkToResponsesEvents(
 	events = append(events, ensureChatToResponsesCreated(state)...)
 
 	for _, choice := range chunk.Choices {
-		// Reasoning is emitted as its own output item and must be opened
-		// (output_item.added + reasoning_summary_part.added) before the first
-		// delta, otherwise a strict client discards the delta. The leading
-		// empty-string reasoning delta upstreams send is filtered out.
+		// Each semantic phase (reasoning / assistant message / tool segment) is
+		// its own ordered output item. Starting a phase closes the previous one
+		// so item.done events follow the causal order the upstream produced.
 		reasoning := choice.Delta.reasoningText()
 		if reasoning != nil && *reasoning != "" {
-			events = append(events, ensureChatReasoningItem(state)...)
-			_, _ = state.Reasoning.WriteString(*reasoning)
-			events = append(events, chatToResponsesEvent(state, "response.reasoning_summary_text.delta", &ResponsesStreamEvent{
-				OutputIndex:  state.ReasoningIndex,
-				SummaryIndex: 0,
-				Delta:        *reasoning,
-				ItemID:       state.ReasoningItemID,
-			}))
+			if state.deferred {
+				state.appendDeferredText(deferredReasoningPhase, *reasoning)
+			} else {
+				events = append(events, closeChatMessageItem(state)...)
+				events = append(events, ensureChatReasoningItem(state)...)
+				_, _ = state.Reasoning.WriteString(*reasoning)
+				events = append(events, chatToResponsesEvent(state, "response.reasoning_summary_text.delta", &ResponsesStreamEvent{
+					OutputIndex:  state.ReasoningIndex,
+					SummaryIndex: 0,
+					Delta:        *reasoning,
+					ItemID:       state.ReasoningItemID,
+				}))
+			}
 		}
 		if choice.Delta.Content != nil && *choice.Delta.Content != "" {
-			// First real content closes the reasoning item, then opens the
-			// message item and its output_text content part.
-			events = append(events, closeChatReasoningItem(state)...)
-			events = append(events, ensureChatToResponsesMessageItem(state)...)
-			events = append(events, ensureChatToResponsesTextPart(state)...)
-			_, _ = state.Text.WriteString(*choice.Delta.Content)
-			events = append(events, chatToResponsesEvent(state, "response.output_text.delta", &ResponsesStreamEvent{
-				OutputIndex:  state.MessageIndex,
-				ContentIndex: 0,
-				Delta:        *choice.Delta.Content,
-				ItemID:       state.MessageItemID,
-			}))
+			if state.deferred {
+				state.appendDeferredText(deferredMessagePhase, *choice.Delta.Content)
+			} else {
+				events = append(events, closeChatReasoningItem(state)...)
+				events = append(events, ensureChatToResponsesMessageItem(state)...)
+				events = append(events, ensureChatToResponsesTextPart(state)...)
+				_, _ = state.Text.WriteString(*choice.Delta.Content)
+				events = append(events, chatToResponsesEvent(state, "response.output_text.delta", &ResponsesStreamEvent{
+					OutputIndex:  state.MessageIndex,
+					ContentIndex: 0,
+					Delta:        *choice.Delta.Content,
+					ItemID:       state.MessageItemID,
+				}))
+			}
 		}
 		for _, toolCall := range choice.Delta.ToolCalls {
 			idx := 0
 			if toolCall.Index != nil {
 				idx = *toolCall.Index
 			}
+			if state.toolFlushedIdx[idx] {
+				// A fragment for an already-delivered tool call means the tool
+				// segment was reopened after its argument stream closed. That
+				// cannot be represented without corrupting the item.
+				state.ProtocolError = fmt.Errorf("tool call index %d received fragments after it was delivered", idx)
+				continue
+			}
+			if !state.deferred {
+				// First tool fragment: close the live phase and start buffering
+				// the tool-affected tail. Nothing from here is delivered until a
+				// trusted finish_reason arrives.
+				events = append(events, closeChatReasoningItem(state)...)
+				events = append(events, closeChatMessageItem(state)...)
+				state.deferred = true
+			}
 			stored, ok := state.ToolCalls[idx]
 			if !ok {
-				// A tool call closes any open reasoning item first.
-				events = append(events, closeChatReasoningItem(state)...)
 				copyCall := toolCall
 				if copyCall.ID == "" {
 					copyCall.ID = generateItemID()
 				}
 				copyCall.Type = "function"
-				// Arguments are accumulated by the shared block below so the
-				// emitted delta and the stored value stay in sync. Some upstreams
-				// (e.g. GLM/Zhipu) pack id+name+arguments into the first tool_call
-				// chunk; without this reset the first chunk's arguments would be
-				// counted twice (once from this copy, once from the += below),
-				// producing a doubled, invalid JSON like {"a":1}{"a":1}.
+				// Arguments are accumulated only via the shared block below. Some
+				// upstreams (e.g. GLM/Zhipu) pack id+name+arguments into the first
+				// tool_call chunk; without this reset the first chunk's arguments
+				// would be counted twice, producing invalid JSON.
 				copyCall.Function.Arguments = ""
+				if !state.addDeferredBytes(len(copyCall.ID) + len(copyCall.Function.Name)) {
+					continue
+				}
 				state.ToolCalls[idx] = &copyCall
 				stored = &copyCall
 				state.ToolItemIDs[idx] = generateItemID()
-				state.ToolOutputIndex[idx] = state.allocOutputIndex()
+				state.toolOrder = append(state.toolOrder, idx)
 			} else {
 				if toolCall.ID != "" {
 					stored.ID = toolCall.ID
@@ -1770,30 +1866,210 @@ func ChatCompletionsChunkToResponsesEvents(
 					stored.Function.Name = toolCall.Function.Name
 				}
 			}
-			events = append(events, announceChatToolItem(state, idx, stored, false)...)
 			if toolCall.Function.Arguments != "" {
-				stored.Function.Arguments += toolCall.Function.Arguments
-				// 未宣告（名字未到）时仅累积，宣告时统一补发；custom 调用的
-				// arguments 是包裹 input 的 JSON 片段，无法增量还原为自由文本
-				// 输入，缓冲整份 arguments 收尾时一次性下发（见 closeChatToolItems）；
-				// tool_search 调用同样收尾时随 output_item.done 全量下发。
-				if state.toolAnnounced[idx] && !state.toolIsCustom[idx] && !state.toolIsToolSearch[idx] {
-					events = append(events, chatToResponsesEvent(state, "response.function_call_arguments.delta", &ResponsesStreamEvent{
-						OutputIndex: state.ToolOutputIndex[idx],
-						ItemID:      state.ToolItemIDs[idx],
-						Delta:       toolCall.Function.Arguments,
-						CallID:      stored.ID,
-						Name:        stored.Function.Name,
-					}))
+				if !state.addDeferredBytes(len(toolCall.Function.Arguments)) {
+					continue
 				}
+				stored.Function.Arguments += toolCall.Function.Arguments
 			}
+			state.appendDeferredTool(idx)
 		}
 		if choice.FinishReason != nil && *choice.FinishReason != "" {
 			state.FinishReason = *choice.FinishReason
 		}
 	}
-
+	// NOTE: the buffered tool tail is deliberately NOT flushed here. The service
+	// must validate accumulated tool arguments (and reject malformed/truncated
+	// streams) before any tool item can be delivered, and that validation only
+	// runs after the scan completes. Tools are therefore released in Finalize.
 	return events
+}
+
+// appendDeferredText records a reasoning/message delta into the current deferred
+// phase, starting a new phase when the semantic kind changes.
+func (state *ChatCompletionsToResponsesStreamState) appendDeferredText(kind deferredPhaseKind, text string) {
+	if state.ProtocolError != nil {
+		return
+	}
+	if !state.addDeferredBytes(len(text)) {
+		return
+	}
+	if state.currentDeferred == nil || state.currentDeferred.kind != kind {
+		state.currentDeferred = &deferredPhase{kind: kind}
+		state.deferredPhases = append(state.deferredPhases, state.currentDeferred)
+	}
+	_, _ = state.currentDeferred.text.WriteString(text)
+}
+
+// appendDeferredTool records a tool index into the current deferred tool phase,
+// starting a new tool phase when the previous deferred phase was not a tool.
+func (state *ChatCompletionsToResponsesStreamState) appendDeferredTool(idx int) {
+	if state.ProtocolError != nil {
+		return
+	}
+	if !state.addDeferredBytes(0) {
+		return
+	}
+	if state.currentDeferred == nil || state.currentDeferred.kind != deferredToolPhase {
+		state.currentDeferred = &deferredPhase{kind: deferredToolPhase}
+		state.deferredPhases = append(state.deferredPhases, state.currentDeferred)
+	}
+	for _, seen := range state.currentDeferred.toolIndices {
+		if seen == idx {
+			return
+		}
+	}
+	state.currentDeferred.toolIndices = append(state.currentDeferred.toolIndices, idx)
+}
+
+// addDeferredBytes accounts for n more buffered bytes and fails fast once the
+// bounded buffer is exceeded. It covers tool arguments/name/id as well as
+// reasoning/message text, so no part of the deferred tail can grow without
+// bound. Once the limit is hit, ProtocolError is set and later appends are
+// skipped (the stream keeps draining for usage only).
+func (state *ChatCompletionsToResponsesStreamState) addDeferredBytes(n int) bool {
+	if state.ProtocolError != nil {
+		return false
+	}
+	state.deferredBytes += n
+	if state.deferredBytes > maxDeferredBytes || len(state.deferredPhases) > maxDeferredPhases {
+		state.ProtocolError = fmt.Errorf("chat completions stream exceeded bounded buffering limits")
+		return false
+	}
+	return true
+}
+
+// flushDeferredPhases emits the buffered phases in order. When includeTools is
+// false the tool phases are dropped (used for truncated "length" responses).
+func (state *ChatCompletionsToResponsesStreamState) flushDeferredPhases(includeTools bool) []ResponsesStreamEvent {
+	if state == nil || !state.deferred {
+		return nil
+	}
+	state.deferred = false
+	state.currentDeferred = nil
+	phases := state.deferredPhases
+	state.deferredPhases = nil
+
+	var events []ResponsesStreamEvent
+	for _, phase := range phases {
+		switch phase.kind {
+		case deferredToolPhase:
+			if !includeTools {
+				continue
+			}
+			// Emit by canonical first-seen output order; the upstream tool_call
+			// index may be sparse (e.g. 2 and 5), so never iterate 0..len-1.
+			// The phase records indices in first-seen order; output_index is
+			// allocated at emit time so delivered indices are contiguous.
+			for _, idx := range phase.toolIndices {
+				toolCall := state.ToolCalls[idx]
+				if toolCall == nil || state.toolFlushedIdx[idx] {
+					continue
+				}
+				events = append(events, emitChatToolItem(state, idx, state.ToolItemIDs[idx], toolCall)...)
+				state.toolFlushedIdx[idx] = true
+			}
+		case deferredReasoningPhase:
+			events = append(events, emitDeferredReasoning(state, phase.text.String())...)
+		case deferredMessagePhase:
+			events = append(events, emitDeferredMessage(state, phase.text.String())...)
+		}
+	}
+	return events
+}
+
+func emitDeferredReasoning(state *ChatCompletionsToResponsesStreamState, text string) []ResponsesStreamEvent {
+	itemID := generateItemID()
+	index := state.allocOutputIndex()
+	item := ResponsesOutput{
+		Type:    "reasoning",
+		ID:      itemID,
+		Status:  "completed",
+		Summary: []ResponsesSummary{{Type: "summary_text", Text: text}},
+	}
+	state.completedItems = append(state.completedItems, item)
+	return []ResponsesStreamEvent{
+		chatToResponsesEvent(state, "response.output_item.added", &ResponsesStreamEvent{
+			OutputIndex: index,
+			Item:        &ResponsesOutput{Type: "reasoning", ID: itemID, Status: "in_progress"},
+		}),
+		chatToResponsesEvent(state, "response.reasoning_summary_part.added", &ResponsesStreamEvent{
+			OutputIndex:  index,
+			SummaryIndex: 0,
+			ItemID:       itemID,
+			Part:         &ResponsesContentPart{Type: "summary_text"},
+		}),
+		chatToResponsesEvent(state, "response.reasoning_summary_text.delta", &ResponsesStreamEvent{
+			OutputIndex:  index,
+			SummaryIndex: 0,
+			Delta:        text,
+			ItemID:       itemID,
+		}),
+		chatToResponsesEvent(state, "response.reasoning_summary_text.done", &ResponsesStreamEvent{
+			OutputIndex:  index,
+			SummaryIndex: 0,
+			Text:         text,
+			ItemID:       itemID,
+		}),
+		chatToResponsesEvent(state, "response.reasoning_summary_part.done", &ResponsesStreamEvent{
+			OutputIndex:  index,
+			SummaryIndex: 0,
+			ItemID:       itemID,
+			Part:         &ResponsesContentPart{Type: "summary_text", Text: text},
+		}),
+		chatToResponsesEvent(state, "response.output_item.done", &ResponsesStreamEvent{
+			OutputIndex: index,
+			Item:        &item,
+		}),
+	}
+}
+
+func emitDeferredMessage(state *ChatCompletionsToResponsesStreamState, text string) []ResponsesStreamEvent {
+	itemID := generateItemID()
+	index := state.allocOutputIndex()
+	item := ResponsesOutput{
+		Type:    "message",
+		ID:      itemID,
+		Role:    "assistant",
+		Content: []ResponsesContentPart{{Type: "output_text", Text: text}},
+		Status:  "completed",
+	}
+	state.completedItems = append(state.completedItems, item)
+	state.messageDelivered = true
+	return []ResponsesStreamEvent{
+		chatToResponsesEvent(state, "response.output_item.added", &ResponsesStreamEvent{
+			OutputIndex: index,
+			Item:        &ResponsesOutput{Type: "message", ID: itemID, Role: "assistant", Status: "in_progress", Content: []ResponsesContentPart{{Type: "output_text"}}},
+		}),
+		chatToResponsesEvent(state, "response.content_part.added", &ResponsesStreamEvent{
+			OutputIndex:  index,
+			ContentIndex: 0,
+			ItemID:       itemID,
+			Part:         &ResponsesContentPart{Type: "output_text", Text: ""},
+		}),
+		chatToResponsesEvent(state, "response.output_text.delta", &ResponsesStreamEvent{
+			OutputIndex:  index,
+			ContentIndex: 0,
+			Delta:        text,
+			ItemID:       itemID,
+		}),
+		chatToResponsesEvent(state, "response.output_text.done", &ResponsesStreamEvent{
+			OutputIndex:  index,
+			ContentIndex: 0,
+			Text:         text,
+			ItemID:       itemID,
+		}),
+		chatToResponsesEvent(state, "response.content_part.done", &ResponsesStreamEvent{
+			OutputIndex:  index,
+			ContentIndex: 0,
+			ItemID:       itemID,
+			Part:         &ResponsesContentPart{Type: "output_text", Text: text},
+		}),
+		chatToResponsesEvent(state, "response.output_item.done", &ResponsesStreamEvent{
+			OutputIndex: index,
+			Item:        &item,
+		}),
+	}
 }
 
 // FinalizeChatCompletionsResponsesStream emits terminal Responses events.
@@ -1804,43 +2080,40 @@ func FinalizeChatCompletionsResponsesStream(state *ChatCompletionsToResponsesStr
 	var events []ResponsesStreamEvent
 	events = append(events, ensureChatToResponsesCreated(state)...)
 
-	// Close a reasoning item that never transitioned to content (reasoning-only
-	// or empty completion).
-	events = append(events, closeChatReasoningItem(state)...)
-	events = append(events, synthesizeChatReasoningFallbackMessage(state)...)
-
-	if state.MessageItemID != "" {
-		if state.TextPartOpen {
-			events = append(events, chatToResponsesEvent(state, "response.output_text.done", &ResponsesStreamEvent{
-				OutputIndex:  state.MessageIndex,
-				ContentIndex: 0,
-				Text:         state.Text.String(),
-				ItemID:       state.MessageItemID,
-			}))
-			events = append(events, chatToResponsesEvent(state, "response.content_part.done", &ResponsesStreamEvent{
-				OutputIndex:  state.MessageIndex,
-				ContentIndex: 0,
-				ItemID:       state.MessageItemID,
-				Part:         &ResponsesContentPart{Type: "output_text", Text: state.Text.String()},
-			}))
+	if state.deferred {
+		// The buffered tool tail is still pending. Only an explicit tool
+		// completion releases the tools; a truncated "length" response drops them
+		// and terminates incomplete; anything else is a protocol error so the
+		// caller aborts instead of delivering a possibly-unfinished tool.
+		switch state.FinishReason {
+		case "tool_calls":
+			events = append(events, state.flushDeferredPhases(true)...)
+		case "length":
+			events = append(events, state.flushDeferredPhases(false)...)
+		default:
+			if state.ProtocolError == nil {
+				state.ProtocolError = fmt.Errorf("tool call stream ended without completion evidence (finish_reason=%q)", state.FinishReason)
+			}
 		}
-		events = append(events, chatToResponsesEvent(state, "response.output_item.done", &ResponsesStreamEvent{
-			OutputIndex: state.MessageIndex,
-			Item: &ResponsesOutput{
-				Type:    "message",
-				ID:      state.MessageItemID,
-				Role:    "assistant",
-				Content: []ResponsesContentPart{{Type: "output_text", Text: state.Text.String()}},
-				Status:  "completed",
-			},
-		}))
+	} else {
+		events = append(events, closeChatReasoningItem(state)...)
+		events = append(events, closeChatMessageItem(state)...)
 	}
 
-	// Close every function_call item opened during the stream. Codex finalizes a
-	// tool call only after function_call_arguments.done + output_item.done for
-	// that item; without them the call never completes and the session wedges.
-	// Mirrors cc-switch's finalize_tools.
-	events = append(events, closeChatToolItems(state)...)
+	if state.ProtocolError != nil {
+		// No terminal event: the caller must not report a successful response.
+		state.CompletedSent = true
+		return events
+	}
+
+	// If the completion carried no message and no tool item (reasoning-only or a
+	// fully empty completion), deliver one canonical empty assistant message so
+	// the terminal output never references an item the client did not receive.
+	if !state.messageDelivered && !state.toolDelivered {
+		events = append(events, ensureChatToResponsesMessageItem(state)...)
+		events = append(events, ensureChatToResponsesTextPart(state)...)
+		events = append(events, closeChatMessageItem(state)...)
+	}
 
 	status := "completed"
 	var incompleteDetails *ResponsesIncompleteDetails
@@ -1850,7 +2123,11 @@ func FinalizeChatCompletionsResponsesStream(state *ChatCompletionsToResponsesStr
 	}
 
 	state.CompletedSent = true
-	events = append(events, chatToResponsesEvent(state, "response.completed", &ResponsesStreamEvent{
+	terminalType := "response.completed"
+	if status == "incomplete" {
+		terminalType = "response.incomplete"
+	}
+	events = append(events, chatToResponsesEvent(state, terminalType, &ResponsesStreamEvent{
 		Response: &ResponsesResponse{
 			ID:                state.ResponseID,
 			Object:            "response",
@@ -1884,16 +2161,19 @@ func ensureChatToResponsesCreated(state *ChatCompletionsToResponsesStreamState) 
 	})}
 }
 
-// ensureChatReasoningItem opens the reasoning output item (output_item.added +
-// reasoning_summary_part.added) before the first reasoning delta. Codex renders
-// streaming reasoning only when this summary-part lifecycle is present.
+// ensureChatReasoningItem opens a NEW reasoning output item
+// (output_item.added + reasoning_summary_part.added) before the first reasoning
+// delta of that phase. The builder/id/index are reset so a second reasoning
+// phase after content becomes a distinct item instead of an orphan delta on the
+// already-closed first one.
 func ensureChatReasoningItem(state *ChatCompletionsToResponsesStreamState) []ResponsesStreamEvent {
-	if state.ReasoningOpen || state.ReasoningDone {
+	if state.ReasoningOpen {
 		return nil
 	}
 	state.ReasoningOpen = true
 	state.ReasoningItemID = generateItemID()
 	state.ReasoningIndex = state.allocOutputIndex()
+	state.Reasoning.Reset()
 	return []ResponsesStreamEvent{
 		chatToResponsesEvent(state, "response.output_item.added", &ResponsesStreamEvent{
 			OutputIndex: state.ReasoningIndex,
@@ -1908,15 +2188,21 @@ func ensureChatReasoningItem(state *ChatCompletionsToResponsesStreamState) []Res
 	}
 }
 
-// closeChatReasoningItem emits the reasoning item's terminal events
-// (reasoning_summary_text.done + reasoning_summary_part.done + output_item.done).
+// closeChatReasoningItem emits the reasoning item's terminal events and records
+// the canonical item.
 func closeChatReasoningItem(state *ChatCompletionsToResponsesStreamState) []ResponsesStreamEvent {
 	if !state.ReasoningOpen {
 		return nil
 	}
 	state.ReasoningOpen = false
-	state.ReasoningDone = true
 	reasoning := state.Reasoning.String()
+	item := ResponsesOutput{
+		Type:    "reasoning",
+		ID:      state.ReasoningItemID,
+		Status:  "completed",
+		Summary: []ResponsesSummary{{Type: "summary_text", Text: reasoning}},
+	}
+	state.completedItems = append(state.completedItems, item)
 	return []ResponsesStreamEvent{
 		chatToResponsesEvent(state, "response.reasoning_summary_text.done", &ResponsesStreamEvent{
 			OutputIndex:  state.ReasoningIndex,
@@ -1932,40 +2218,53 @@ func closeChatReasoningItem(state *ChatCompletionsToResponsesStreamState) []Resp
 		}),
 		chatToResponsesEvent(state, "response.output_item.done", &ResponsesStreamEvent{
 			OutputIndex: state.ReasoningIndex,
-			Item: &ResponsesOutput{
-				Type:    "reasoning",
-				ID:      state.ReasoningItemID,
-				Status:  "completed",
-				Summary: []ResponsesSummary{{Type: "summary_text", Text: reasoning}},
-			},
+			Item:        &item,
 		}),
 	}
 }
 
-func synthesizeChatReasoningFallbackMessage(state *ChatCompletionsToResponsesStreamState) []ResponsesStreamEvent {
-	if state == nil ||
-		state.MessageItemID != "" ||
-		state.Text.Len() > 0 ||
-		state.Reasoning.Len() == 0 ||
-		len(state.ToolCalls) > 0 {
+// closeChatMessageItem emits the assistant message item's terminal events and
+// records the canonical item, then resets the message phase so a later content
+// phase opens a fresh message item.
+func closeChatMessageItem(state *ChatCompletionsToResponsesStreamState) []ResponsesStreamEvent {
+	if state.MessageItemID == "" {
 		return nil
 	}
-
-	text := state.Reasoning.String()
-	if strings.TrimSpace(text) == "" {
-		return nil
-	}
-
+	text := state.Text.String()
 	var events []ResponsesStreamEvent
-	events = append(events, ensureChatToResponsesMessageItem(state)...)
-	events = append(events, ensureChatToResponsesTextPart(state)...)
-	_, _ = state.Text.WriteString(text)
-	events = append(events, chatToResponsesEvent(state, "response.output_text.delta", &ResponsesStreamEvent{
-		OutputIndex:  state.MessageIndex,
-		ContentIndex: 0,
-		Delta:        text,
-		ItemID:       state.MessageItemID,
+	if state.TextPartOpen {
+		events = append(events,
+			chatToResponsesEvent(state, "response.output_text.done", &ResponsesStreamEvent{
+				OutputIndex:  state.MessageIndex,
+				ContentIndex: 0,
+				Text:         text,
+				ItemID:       state.MessageItemID,
+			}),
+			chatToResponsesEvent(state, "response.content_part.done", &ResponsesStreamEvent{
+				OutputIndex:  state.MessageIndex,
+				ContentIndex: 0,
+				ItemID:       state.MessageItemID,
+				Part:         &ResponsesContentPart{Type: "output_text", Text: text},
+			}),
+		)
+	}
+	item := ResponsesOutput{
+		Type:    "message",
+		ID:      state.MessageItemID,
+		Role:    "assistant",
+		Content: []ResponsesContentPart{{Type: "output_text", Text: text}},
+		Status:  "completed",
+	}
+	state.completedItems = append(state.completedItems, item)
+	state.messageDelivered = true
+	events = append(events, chatToResponsesEvent(state, "response.output_item.done", &ResponsesStreamEvent{
+		OutputIndex: state.MessageIndex,
+		Item:        &item,
 	}))
+	state.MessageItemID = ""
+	state.MessageIndex = 0
+	state.TextPartOpen = false
+	state.Text.Reset()
 	return events
 }
 
@@ -1975,6 +2274,8 @@ func ensureChatToResponsesMessageItem(state *ChatCompletionsToResponsesStreamSta
 	}
 	state.MessageItemID = generateItemID()
 	state.MessageIndex = state.allocOutputIndex()
+	state.Text.Reset()
+	state.TextPartOpen = false
 	return []ResponsesStreamEvent{chatToResponsesEvent(state, "response.output_item.added", &ResponsesStreamEvent{
 		OutputIndex: state.MessageIndex,
 		Item: &ResponsesOutput{
@@ -2000,239 +2301,126 @@ func ensureChatToResponsesTextPart(state *ChatCompletionsToResponsesStreamState)
 	})}
 }
 
-// announceChatToolItem 在类型可判定时发出工具调用的 output_item.added。custom
-// 工具的判定依赖名字：名字未到且请求里存在 custom 工具时延迟宣告，避免 added/done
-// 的项类型不一致；force 用于流收尾，名字始终未到时按 function_call 兜底。
-func announceChatToolItem(
+// emitChatToolItem emits the complete lifecycle for one buffered tool call and
+// records its canonical output item. Type selection (custom / tool_search /
+// namespaced function) mirrors the historical announce path so added and done
+// always agree.
+func emitChatToolItem(
 	state *ChatCompletionsToResponsesStreamState,
 	idx int,
+	itemID string,
 	stored *ChatToolCall,
-	force bool,
 ) []ResponsesStreamEvent {
-	if state.toolAnnounced[idx] {
-		return nil
+	// Allocate the output index at emit time so it is contiguous with every
+	// already-delivered item, regardless of when the upstream fragment arrived.
+	outputIndex := state.allocOutputIndex()
+	state.ToolOutputIndex[idx] = outputIndex
+	arguments := stored.Function.Arguments
+	if strings.TrimSpace(arguments) == "" {
+		arguments = "{}"
 	}
-	if !force && stored.Function.Name == "" && (len(state.CustomTools) > 0 || len(state.FunctionTools) > 0 || state.ToolSearchDeclared || len(state.NamespaceTools) > 0) {
-		return nil
-	}
-	state.toolAnnounced[idx] = true
 	customName, isCustom := customToolCallName(stored.Function.Name, state.CustomTools, state.FunctionTools, state.NamespaceTools)
 	isToolSearch := !isCustom && state.ToolSearchDeclared && stored.Function.Name == toolSearchProxyName
 	state.toolIsCustom[idx] = isCustom
 	state.toolIsToolSearch[idx] = isToolSearch
-	itemType := "function_call"
-	if isCustom {
-		itemType = "custom_tool_call"
-	}
-	if isToolSearch {
-		itemType = "tool_search_call"
-	}
-	// namespace 子工具的调用仍按 function_call 生命周期下发，但 added/done 项要
-	// 还原为裸子工具名 + namespace 字段（codex 按 namespace+name 路由）。
-	itemName, itemNamespace := stored.Function.Name, ""
-	if isCustom {
-		itemName = customName
-	}
-	if ns, ok := state.NamespaceTools[stored.Function.Name]; ok && !isCustom && !isToolSearch {
-		state.toolNamespace[idx] = ns
-		itemName, itemNamespace = ns.Name, ns.Namespace
-	}
-	events := []ResponsesStreamEvent{chatToResponsesEvent(state, "response.output_item.added", &ResponsesStreamEvent{
-		OutputIndex: state.ToolOutputIndex[idx],
-		Item: &ResponsesOutput{
-			Type:      itemType,
-			ID:        state.ToolItemIDs[idx],
-			CallID:    stored.ID,
-			Name:      itemName,
-			Namespace: itemNamespace,
-			Status:    "in_progress",
-		},
-	})}
-	// 迟到宣告时补发已累积的参数增量（custom/tool_search 的输入收尾统一下发，不补发）。
-	if !isCustom && !isToolSearch && stored.Function.Arguments != "" {
-		events = append(events, chatToResponsesEvent(state, "response.function_call_arguments.delta", &ResponsesStreamEvent{
-			OutputIndex: state.ToolOutputIndex[idx],
-			ItemID:      state.ToolItemIDs[idx],
-			Delta:       stored.Function.Arguments,
-			CallID:      stored.ID,
-			Name:        stored.Function.Name,
-		}))
-	}
-	return events
-}
 
-// closeChatToolItems emits function_call_arguments.done + output_item.done for
-// every tool call opened during the stream, carrying the full call_id/name/
-// arguments so codex can deserialize and execute the call. Mirrors cc-switch's
-// finalize_tools.
-func closeChatToolItems(state *ChatCompletionsToResponsesStreamState) []ResponsesStreamEvent {
-	if len(state.ToolCalls) == 0 {
-		return nil
-	}
 	var events []ResponsesStreamEvent
-	for i := 0; i < len(state.ToolCalls); i++ {
-		toolCall, ok := state.ToolCalls[i]
-		if !ok || toolCall == nil {
-			continue
+	switch {
+	case isCustom:
+		name := customName
+		input := extractCustomToolCallInput(arguments)
+		item := ResponsesOutput{
+			Type: "custom_tool_call", ID: itemID, CallID: stored.ID, Name: name,
+			Input: input, Status: "completed",
 		}
-		itemID, opened := state.ToolItemIDs[i]
-		if !opened {
-			continue
-		}
-		// 名字始终未到导致尚未宣告的调用，收尾前按最终名字兜底宣告。
-		events = append(events, announceChatToolItem(state, i, toolCall, true)...)
-		arguments := toolCall.Function.Arguments
-		if strings.TrimSpace(arguments) == "" {
-			arguments = "{}"
-		}
-		outputIndex := state.ToolOutputIndex[i]
-		if state.toolIsCustom[i] {
-			// custom 调用按 custom_tool_call 生命周期收尾：input 在此处一次性下发
-			// （流中不产出增量，见 ChatCompletionsChunkToResponsesEvents）。
-			input := extractCustomToolCallInput(arguments)
-			if input != "" {
-				events = append(events, chatToResponsesEvent(state, "response.custom_tool_call_input.delta", &ResponsesStreamEvent{
-					OutputIndex: outputIndex,
-					ItemID:      itemID,
-					Delta:       input,
-				}))
-			}
-			events = append(events,
-				chatToResponsesEvent(state, "response.custom_tool_call_input.done", &ResponsesStreamEvent{
-					OutputIndex: outputIndex,
-					ItemID:      itemID,
-					CallID:      toolCall.ID,
-					Name:        customNameForStreamTool(state, toolCall.Function.Name),
-					Input:       input,
-				}),
-				chatToResponsesEvent(state, "response.output_item.done", &ResponsesStreamEvent{
-					OutputIndex: outputIndex,
-					Item: &ResponsesOutput{
-						Type:   "custom_tool_call",
-						ID:     itemID,
-						CallID: toolCall.ID,
-						Name:   customNameForStreamTool(state, toolCall.Function.Name),
-						Input:  input,
-						Status: "completed",
-					},
-				}),
-			)
-			continue
-		}
-		if state.toolIsToolSearch[i] {
-			// tool_search 调用按 tool_search_call 项收尾：codex 从 output_item.done
-			// 物化该调用（无参数增量事件），arguments 全量随项下发。
-			events = append(events, chatToResponsesEvent(state, "response.output_item.done", &ResponsesStreamEvent{
+		events = append(events, chatToResponsesEvent(state, "response.output_item.added", &ResponsesStreamEvent{
+			OutputIndex: outputIndex,
+			Item:        &ResponsesOutput{Type: "custom_tool_call", ID: itemID, CallID: stored.ID, Name: name, Status: "in_progress"},
+		}))
+		if input != "" {
+			events = append(events, chatToResponsesEvent(state, "response.custom_tool_call_input.delta", &ResponsesStreamEvent{
 				OutputIndex: outputIndex,
-				Item: &ResponsesOutput{
-					Type:      "tool_search_call",
-					ID:        itemID,
-					CallID:    toolCall.ID,
-					Arguments: arguments,
-					Status:    "completed",
-				},
+				ItemID:      itemID,
+				Delta:       input,
 			}))
-			continue
-		}
-		// namespace 子工具调用在宣告时已记录归属，收尾项同样带还原名与 namespace。
-		name, namespace := toolCall.Function.Name, ""
-		if ns, ok := state.toolNamespace[i]; ok {
-			name, namespace = ns.Name, ns.Namespace
 		}
 		events = append(events,
+			chatToResponsesEvent(state, "response.custom_tool_call_input.done", &ResponsesStreamEvent{
+				OutputIndex: outputIndex,
+				ItemID:      itemID,
+				CallID:      stored.ID,
+				Name:        name,
+				Input:       input,
+			}),
+			chatToResponsesEvent(state, "response.output_item.done", &ResponsesStreamEvent{
+				OutputIndex: outputIndex,
+				Item:        &item,
+			}),
+		)
+		state.completedItems = append(state.completedItems, item)
+	case isToolSearch:
+		item := ResponsesOutput{
+			Type: "tool_search_call", ID: itemID, CallID: stored.ID,
+			Arguments: arguments, Status: "completed",
+		}
+		events = append(events,
+			chatToResponsesEvent(state, "response.output_item.added", &ResponsesStreamEvent{
+				OutputIndex: outputIndex,
+				Item:        &ResponsesOutput{Type: "tool_search_call", ID: itemID, CallID: stored.ID, Status: "in_progress"},
+			}),
+			chatToResponsesEvent(state, "response.output_item.done", &ResponsesStreamEvent{
+				OutputIndex: outputIndex,
+				Item:        &item,
+			}),
+		)
+		state.completedItems = append(state.completedItems, item)
+	default:
+		name, namespace := stored.Function.Name, ""
+		if ns, ok := state.NamespaceTools[stored.Function.Name]; ok {
+			state.toolNamespace[idx] = ns
+			name, namespace = ns.Name, ns.Namespace
+		}
+		item := ResponsesOutput{
+			Type: "function_call", ID: itemID, CallID: stored.ID, Name: name,
+			Namespace: namespace, Arguments: arguments, Status: "completed",
+		}
+		events = append(events,
+			chatToResponsesEvent(state, "response.output_item.added", &ResponsesStreamEvent{
+				OutputIndex: outputIndex,
+				Item:        &ResponsesOutput{Type: "function_call", ID: itemID, CallID: stored.ID, Name: name, Namespace: namespace, Status: "in_progress"},
+			}),
+			chatToResponsesEvent(state, "response.function_call_arguments.delta", &ResponsesStreamEvent{
+				OutputIndex: outputIndex,
+				ItemID:      itemID,
+				Delta:       arguments,
+				CallID:      stored.ID,
+				Name:        stored.Function.Name,
+			}),
 			chatToResponsesEvent(state, "response.function_call_arguments.done", &ResponsesStreamEvent{
 				OutputIndex: outputIndex,
 				ItemID:      itemID,
-				CallID:      toolCall.ID,
+				CallID:      stored.ID,
 				Name:        name,
 				Arguments:   arguments,
 			}),
 			chatToResponsesEvent(state, "response.output_item.done", &ResponsesStreamEvent{
 				OutputIndex: outputIndex,
-				Item: &ResponsesOutput{
-					Type:      "function_call",
-					ID:        itemID,
-					CallID:    toolCall.ID,
-					Name:      name,
-					Namespace: namespace,
-					Arguments: arguments,
-					Status:    "completed",
-				},
+				Item:        &item,
 			}),
 		)
+		state.completedItems = append(state.completedItems, item)
 	}
+	state.toolDelivered = true
 	return events
 }
 
 func (state *ChatCompletionsToResponsesStreamState) chatOutput() []ResponsesOutput {
-	var outputs []ResponsesOutput
-	if state.Reasoning.Len() > 0 {
-		outputs = append(outputs, ResponsesOutput{
-			Type: "reasoning",
-			ID:   generateItemID(),
-			Summary: []ResponsesSummary{{
-				Type: "summary_text",
-				Text: state.Reasoning.String(),
-			}},
-		})
-	}
-	if state.MessageItemID != "" || len(state.ToolCalls) == 0 {
-		outputs = append(outputs, ResponsesOutput{
-			Type: "message",
-			ID:   nonEmpty(state.MessageItemID, generateItemID()),
-			Role: "assistant",
-			Content: []ResponsesContentPart{{
-				Type: "output_text",
-				Text: state.Text.String(),
-			}},
-			Status: "completed",
-		})
-	}
-	for i := 0; i < len(state.ToolCalls); i++ {
-		toolCall, ok := state.ToolCalls[i]
-		if !ok || toolCall == nil {
-			continue
-		}
-		arguments := toolCall.Function.Arguments
-		if strings.TrimSpace(arguments) == "" {
-			arguments = "{}"
-		}
-		if state.toolIsCustom[i] {
-			outputs = append(outputs, ResponsesOutput{
-				Type:   "custom_tool_call",
-				ID:     generateItemID(),
-				CallID: toolCall.ID,
-				Name:   customNameForStreamTool(state, toolCall.Function.Name),
-				Input:  extractCustomToolCallInput(arguments),
-				Status: "completed",
-			})
-			continue
-		}
-		if state.toolIsToolSearch[i] {
-			outputs = append(outputs, ResponsesOutput{
-				Type:      "tool_search_call",
-				ID:        generateItemID(),
-				CallID:    toolCall.ID,
-				Arguments: arguments,
-				Status:    "completed",
-			})
-			continue
-		}
-		name, namespace := toolCall.Function.Name, ""
-		if ns, ok := state.toolNamespace[i]; ok {
-			name, namespace = ns.Name, ns.Namespace
-		}
-		outputs = append(outputs, ResponsesOutput{
-			Type:      "function_call",
-			ID:        generateItemID(),
-			CallID:    toolCall.ID,
-			Name:      name,
-			Namespace: namespace,
-			Arguments: arguments,
-			Status:    "completed",
-		})
-	}
-	return outputs
+	// Return the canonical items in delivery order. The old implementation
+	// regenerated item ids here, so the terminal response.output could disagree
+	// with the ids the client had already persisted from output_item.done.
+	out := make([]ResponsesOutput, len(state.completedItems))
+	copy(out, state.completedItems)
+	return out
 }
 
 func chatToResponsesEvent(

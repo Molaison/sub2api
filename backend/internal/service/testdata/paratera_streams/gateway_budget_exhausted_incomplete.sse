@@ -1,0 +1,628 @@
+data: {"type":"response.created","response":{"id":"resp_v4XkVuoTN0WF19sryi06dMFGUHSo68_AE1_1HQZNKJKvGADtWLnVCbsMlDMBCZNj1rtcQwZ8_AqYDysyphHrT82H15UWsPVwZXH3pW7-4eCNurDYhHJdy1o7jPjMt1poHViTa4He8M-eU_7HbKaG-3LYxNwevXJFyrtIycZ999XPsOE3gCUyXrAyLmrpi4dfssyMYFv_8aKSs0pQJcyIquXdqVvT6ro-KDFiP_KPJsAMRe5nks_2ZfCZQW_3dTzcxOo=","created_at":1789624876,"metadata":{"_litellm_tpm_reserved_model":"DeepSeek-V4.1-Flash","model_group":"e577d746-c486-4684-810f-b11138e4e2d8"},"model":"DeepSeek-V4.1-Flash","object":"response","output":[],"parallel_tool_calls":true,"tool_choice":"none","tools":[],"top_p":1.0,"reasoning":{"effort":null,"summary":null},"status":"in_progress","store":true},"model":"DeepSeek-V4.1-Flash"}
+
+data: {"type":"response.in_progress","response":{"id":"resp_v4XkVuoTN0WF19sryi06dMFGUHSo68_AE1_1HQZNKJKvGADtWLnVCbsMlDMBCZNj1rtcQwZ8_AqYDysyphHrT82H15UWsPVwZXH3pW7-4eCNurDYhHJdy1o7jPjMt1poHViTa4He8M-eU_7HbKaG-3LYxNwevXJFyrtIycZ999XPsOE3gCUyXrAyLmrpi4dfssyMYFv_8aKSs0pQJcyIquXdqVvT6ro-KDFiP_KPJsAMRe5nks_2ZfCZQW_3dTzcxOo=","created_at":1789624876,"metadata":{"_litellm_tpm_reserved_model":"DeepSeek-V4.1-Flash","model_group":"e577d746-c486-4684-810f-b11138e4e2d8"},"model":"DeepSeek-V4.1-Flash","object":"response","output":[],"parallel_tool_calls":true,"tool_choice":"none","tools":[],"top_p":1.0,"reasoning":{"effort":null,"summary":null},"status":"in_progress","store":true},"model":"DeepSeek-V4.1-Flash"}
+
+data: {"item":{"id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","status":"in_progress","summary":[],"type":"reasoning"},"model":"DeepSeek-V4.1-Flash","output_index":0,"type":"response.output_item.added"}
+
+data: {"item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","model":"DeepSeek-V4.1-Flash","output_index":0,"part":{"text":"","type":"summary_text"},"summary_index":0,"type":"response.reasoning_summary_part.added"}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"We","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" need","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" answer","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" based","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" on","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" progress","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" notes","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" only","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":".","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" User","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" asks","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":":","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" \"","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"From","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" your","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" progress","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" notes","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" only","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":":","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" how","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" many","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" files","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" have","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" been","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" read","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" in","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" this","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" turn","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":",","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" and","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" what","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" was","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" the","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" running","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" total","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" before","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" part","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"06","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"?","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" Reply","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" '","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"files","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"=<","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"n","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":">","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" total","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"=<","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"n","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":">'","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" or","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" UN","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"KNOWN","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" if","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" the","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" notes","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" are","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" not","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" available","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":".","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" Do","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" not","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" call","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" tools","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":".\"\n\n","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"We","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" need","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" parse","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":".","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" Progress","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" notes","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" for","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" this","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" turn","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":":","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" \"","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"I","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" have","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" already","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" read","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" part","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"01","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":".txt","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" through","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" part","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"05","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":".txt","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":".","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" The","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" running","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" total","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" is","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" ","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"743","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":".","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" The","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" next","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" file","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" to","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" read","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" is","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" part","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"06","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":".txt","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":".\"","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" Then","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" after","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" reading","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" part","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"06","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":",","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" value","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"=","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"118","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" next","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"=","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"part","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"07","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":".\n\n","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"But","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" the","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" question","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" asks","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":":","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" From","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" your","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" progress","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" notes","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" only","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":":","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" how","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" many","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" files","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" have","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" been","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" read","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" in","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" this","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" turn","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":",","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" and","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" what","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" was","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" the","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" running","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" total","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" before","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" part","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"06","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"?","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" The","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" notes","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" say","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" part","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"01","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" through","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" part","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"05","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" read","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":",","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" running","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" total","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" ","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"743","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":",","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" next","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" part","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"06","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":".","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" So","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" before","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" part","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"06","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":",","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" ","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"5","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" files","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" read","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" in","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" this","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" turn","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":".","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" Running","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" total","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" before","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" part","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"06","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" was","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" ","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"743","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":".","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" But","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" wait","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" after","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" reading","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" part","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"06","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":",","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" we","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" have","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" read","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" part","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"06","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" too","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":",","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" so","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" total","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" files","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" read","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" this","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" turn","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" =","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" ","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"6","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":".","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" But","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" the","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" question","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" asks","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" \"","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"how","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" many","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" files","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" have","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" been","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" read","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" in","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" this","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" turn","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"\"","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" -","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" could","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" mean","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" up","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" to","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" now","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"?","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" And","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" \"","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"what","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" was","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" the","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" running","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" total","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" before","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" part","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"06","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"?\"","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" That","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" is","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" ","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"743","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":".","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" The","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" notes","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":":","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" progress","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" notes","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" for","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" this","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" turn","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":":","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" I","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" have","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" already","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" read","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" part","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"01","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" through","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" part","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"05","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":".","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" running","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" total","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" ","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"743","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":".","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" next","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" part","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"06","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":".","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" Then","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" we","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" read","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" part","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"06","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":".","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" So","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" currently","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" ","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"6","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" files","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" read","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":".","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" But","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" \"","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"before","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" part","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"06","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":"\"","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"type":"response.reasoning_summary_text.delta","item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","output_index":0,"delta":" running","model":"DeepSeek-V4.1-Flash","summary_index":0}
+
+data: {"item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","model":"DeepSeek-V4.1-Flash","output_index":0,"summary_index":0,"text":"We need answer based on progress notes only. User asks: \"From your progress notes only: how many files have been read in this turn, and what was the running total before part06? Reply 'files=\u003cn\u003e total=\u003cn\u003e' or UNKNOWN if the notes are not available. Do not call tools.\"\n\nWe need parse. Progress notes for this turn: \"I have already read part01.txt through part05.txt. The running total is 743. The next file to read is part06.txt.\" Then after reading part06, value=118 next=part07.\n\nBut the question asks: From your progress notes only: how many files have been read in this turn, and what was the running total before part06? The notes say part01 through part05 read, running total 743, next part06. So before part06, 5 files read in this turn. Running total before part06 was 743. But wait after reading part06, we have read part06 too, so total files read this turn = 6. But the question asks \"how many files have been read in this turn\" - could mean up to now? And \"what was the running total before part06?\" That is 743. The notes: progress notes for this turn: I have already read part01 through part05. running total 743. next part06. Then we read part06. So currently 6 files read. But \"before part06\" running","type":"response.reasoning_summary_text.done"}
+
+data: {"item_id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","model":"DeepSeek-V4.1-Flash","output_index":0,"part":{"text":"We need answer based on progress notes only. User asks: \"From your progress notes only: how many files have been read in this turn, and what was the running total before part06? Reply 'files=\u003cn\u003e total=\u003cn\u003e' or UNKNOWN if the notes are not available. Do not call tools.\"\n\nWe need parse. Progress notes for this turn: \"I have already read part01.txt through part05.txt. The running total is 743. The next file to read is part06.txt.\" Then after reading part06, value=118 next=part07.\n\nBut the question asks: From your progress notes only: how many files have been read in this turn, and what was the running total before part06? The notes say part01 through part05 read, running total 743, next part06. So before part06, 5 files read in this turn. Running total before part06 was 743. But wait after reading part06, we have read part06 too, so total files read this turn = 6. But the question asks \"how many files have been read in this turn\" - could mean up to now? And \"what was the running total before part06?\" That is 743. The notes: progress notes for this turn: I have already read part01 through part05. running total 743. next part06. Then we read part06. So currently 6 files read. But \"before part06\" running","type":"summary_text"},"summary_index":0,"type":"response.reasoning_summary_part.done"}
+
+data: {"item":{"id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","status":"completed","summary":[{"text":"We need answer based on progress notes only. User asks: \"From your progress notes only: how many files have been read in this turn, and what was the running total before part06? Reply 'files=\u003cn\u003e total=\u003cn\u003e' or UNKNOWN if the notes are not available. Do not call tools.\"\n\nWe need parse. Progress notes for this turn: \"I have already read part01.txt through part05.txt. The running total is 743. The next file to read is part06.txt.\" Then after reading part06, value=118 next=part07.\n\nBut the question asks: From your progress notes only: how many files have been read in this turn, and what was the running total before part06? The notes say part01 through part05 read, running total 743, next part06. So before part06, 5 files read in this turn. Running total before part06 was 743. But wait after reading part06, we have read part06 too, so total files read this turn = 6. But the question asks \"how many files have been read in this turn\" - could mean up to now? And \"what was the running total before part06?\" That is 743. The notes: progress notes for this turn: I have already read part01 through part05. running total 743. next part06. Then we read part06. So currently 6 files read. But \"before part06\" running","type":"summary_text"}],"type":"reasoning"},"model":"DeepSeek-V4.1-Flash","output_index":0,"type":"response.output_item.done"}
+
+data: {"type":"response.output_item.added","output_index":0,"item":{"id":"msg_f763aee6-e64b-4c65-aa49-b2f1912d8afd","type":"message","role":"assistant","status":"in_progress","content":[]},"model":"DeepSeek-V4.1-Flash"}
+
+data: {"type":"response.content_part.added","item_id":"msg_f763aee6-e64b-4c65-aa49-b2f1912d8afd","output_index":0,"content_index":0,"part":{"type":"output_text","text":"","annotations":[]},"model":"DeepSeek-V4.1-Flash"}
+
+data: {"type":"response.output_text.done","item_id":"msg_f763aee6-e64b-4c65-aa49-b2f1912d8afd","output_index":0,"content_index":0,"text":"","model":"DeepSeek-V4.1-Flash"}
+
+data: {"type":"response.content_part.done","item_id":"msg_f763aee6-e64b-4c65-aa49-b2f1912d8afd","output_index":0,"content_index":0,"part":{"type":"reasoning_text","reasoning":"We need answer based on progress notes only. User asks: \"From your progress notes only: how many files have been read in this turn, and what was the running total before part06? Reply 'files=<n> total=<n>' or UNKNOWN if the notes are not available. Do not call tools.\"\n\nWe need parse. Progress notes for this turn: \"I have already read part01.txt through part05.txt. The running total is 743. The next file to read is part06.txt.\" Then after reading part06, value=118 next=part07.\n\nBut the question asks: From your progress notes only: how many files have been read in this turn, and what was the running total before part06? The notes say part01 through part05 read, running total 743, next part06. So before part06, 5 files read in this turn. Running total before part06 was 743. But wait after reading part06, we have read part06 too, so total files read this turn = 6. But the question asks \"how many files have been read in this turn\" - could mean up to now? And \"what was the running total before part06?\" That is 743. The notes: progress notes for this turn: I have already read part01 through part05. running total 743. next part06. Then we read part06. So currently 6 files read. But \"before part06\" running"},"model":"DeepSeek-V4.1-Flash"}
+
+data: {"type":"response.output_item.done","output_index":0,"sequence_number":1,"item":{"id":"msg_f763aee6-e64b-4c65-aa49-b2f1912d8afd","status":"completed","type":"message","role":"assistant","content":[{"type":"output_text","text":"","annotations":[]}]},"model":"DeepSeek-V4.1-Flash"}
+
+data: {"type":"response.completed","response":{"id":"resp_qR6UL6aUaBy5WuQH86u-9KgkYd_dBUrpgN8jbYo0kYHRJMp-oRBQ0zFGaeJbTeirnkZgjy_BY2hraCTf6wvXL9mmNidCbbAed6RC9gvnCC-Zr7cPEcmtJUXfoz3U62WOAt9gHHM6t3wZDZLaZl28DfFnyFrIEzFSIhbxNdhcqVbjx_8NWzP6XyS-Az802xnFoaj5w5AqlRJC072MCEKFMiU8iR55eNp86e6o8n3M0hD1SJ_jnxnLBR9TWMN_F4gbdj6SC3aySrisMJpEpt9b7f7HVI6awcrmwWNbsfhYyy1jhrBME_kSYQwSH_gzDUqq8fDLZTJo_dpS4OGdPxq6bbWJMB_jIL1JrvhKuN7wRp6gK2-sfK7dgZzH7URoEsnjtjloBOvazbGUJ08h4gZlfa86v3RhqTRT54fH0Xls2Ni5BzDD0z6cObpew-uLBdBJBZw=","created_at":1789624876,"metadata":{},"model":"DeepSeek-V4.1-Flash","object":"response","output":[{"id":"rs_20eb0399-a807-42df-9d3d-129cb2335897","status":"completed","summary":[{"text":"We need answer based on progress notes only. User asks: \"From your progress notes only: how many files have been read in this turn, and what was the running total before part06? Reply 'files=\u003cn\u003e total=\u003cn\u003e' or UNKNOWN if the notes are not available. Do not call tools.\"\n\nWe need parse. Progress notes for this turn: \"I have already read part01.txt through part05.txt. The running total is 743. The next file to read is part06.txt.\" Then after reading part06, value=118 next=part07.\n\nBut the question asks: From your progress notes only: how many files have been read in this turn, and what was the running total before part06? The notes say part01 through part05 read, running total 743, next part06. So before part06, 5 files read in this turn. Running total before part06 was 743. But wait after reading part06, we have read part06 too, so total files read this turn = 6. But the question asks \"how many files have been read in this turn\" - could mean up to now? And \"what was the running total before part06?\" That is 743. The notes: progress notes for this turn: I have already read part01 through part05. running total 743. next part06. Then we read part06. So currently 6 files read. But \"before part06\" running","type":"summary_text"}],"type":"reasoning"},{"type":"message","id":"b12535eb-a916-48b0-a2dd-2ab1cece8fd1","status":"incomplete","role":"assistant","content":[{"type":"output_text","text":"","annotations":[]}]}],"parallel_tool_calls":false,"temperature":0.0,"tool_choice":"auto","tools":[],"status":"incomplete","text":{},"usage":{"input_tokens":183,"input_tokens_details":{"cached_tokens":0},"output_tokens":300,"output_tokens_details":{"reasoning_tokens":300},"total_tokens":483}},"model":"DeepSeek-V4.1-Flash"}
+
+data: [DONE]
+

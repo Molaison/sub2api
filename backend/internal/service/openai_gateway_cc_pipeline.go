@@ -245,6 +245,9 @@ type ccStreamScanState struct {
 	FirstTokenMs *int
 	// SawDone 表示上游发出了 [DONE] 哨兵。
 	SawDone bool
+	// ParseErrors 记录无法解析为 Chat chunk 的 data 行数。非 0 表示上游 SSE
+	// 已损坏，调用方不得把截断/坏流当作正常收尾。
+	ParseErrors int
 	// Err 为 scanner 读错误（客户端 context 取消不属于此类，会原样带出）。
 	// 非 nil 时调用方必须跳过 finalize 并返回 usage-incomplete 错误，避免
 	// 把上游截断伪装成正常收尾。
@@ -297,6 +300,7 @@ func (s *OpenAIGatewayService) scanCCStream(
 				zap.Error(err),
 				zap.String("request_id", requestID),
 			)
+			st.ParseErrors++
 			continue
 		}
 		if st.FirstTokenMs == nil && !isOpenAIChatUsageOnlyStreamChunk(payload) && chatChunkStartsResponsesOutput(&chunk) {

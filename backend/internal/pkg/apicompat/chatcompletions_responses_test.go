@@ -515,7 +515,7 @@ func TestChatCompletionsToResponses_EmptyContentNeverNull(t *testing.T) {
 	}
 }
 
-func TestChatCompletionsResponseToResponses_DeepSeekReasoningOnlyFallsBackToMessageText(t *testing.T) {
+func TestChatCompletionsResponseToResponses_DeepSeekReasoningOnlyDoesNotFabricateAnswerText(t *testing.T) {
 	content := json.RawMessage(`""`)
 	resp := &ChatCompletionsResponse{
 		ID:     "chatcmpl_deepseek_reasoning_only",
@@ -534,11 +534,14 @@ func TestChatCompletionsResponseToResponses_DeepSeekReasoningOnlyFallsBackToMess
 
 	out := ChatCompletionsResponseToResponses(resp, "deepseek-reasoner", nil, nil, false, nil)
 
+	require.Equal(t, "completed", out.Status)
 	require.Len(t, out.Output, 2)
 	require.Equal(t, "reasoning", out.Output[0].Type)
+	require.Equal(t, "reasoning-only answer", out.Output[0].Summary[0].Text)
 	require.Equal(t, "message", out.Output[1].Type)
 	require.Len(t, out.Output[1].Content, 1)
-	assert.Equal(t, "reasoning-only answer", out.Output[1].Content[0].Text)
+	assert.Equal(t, "", out.Output[1].Content[0].Text,
+		"reasoning must not be copied into the assistant message body")
 }
 
 func TestChatCompletionsResponseToResponses_DeepSeekReasoningToolCallDoesNotFallbackToMessageText(t *testing.T) {

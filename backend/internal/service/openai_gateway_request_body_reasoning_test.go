@@ -1,12 +1,46 @@
 package service
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/tidwall/gjson"
 )
+
+// Causal order must survive the assistant-message reordering: an observation
+// that the model made about tool result A may never be moved above A (or above
+// the calls it depends on), even though the upstream dislikes assistant
+// messages sitting between a call and its output.
+func TestParateraToolReplayKeepsObservationAfterItsEvidence(t *testing.T) {
+	body := []byte(`{"model":"DeepSeek-V4.1-Flash","input":[` +
+		`{"type":"message","role":"user","content":[{"type":"input_text","text":"go"}]},` +
+		`{"type":"function_call","call_id":"call_a","name":"read_file","arguments":"{}"},` +
+		`{"type":"function_call","call_id":"call_b","name":"read_file","arguments":"{}"},` +
+		`{"type":"function_call_output","call_id":"call_a","output":"A"},` +
+		`{"type":"message","role":"assistant","content":[{"type":"output_text","text":"based on A"}]},` +
+		`{"type":"function_call_output","call_id":"call_b","output":"B"}]}`)
+	normalized, changed, err := normalizeParateraDeepSeekAssistantToolReplay(body)
+	require.NoError(t, err)
+	require.False(t, changed, "an observation after its evidence must not be reordered")
+	require.JSONEq(t, string(body), string(normalized))
+
+	// The original intent is preserved: a preface that sits between a call and
+	// its output (before any result) is still hoisted ahead of the calls.
+	preface := []byte(`{"model":"DeepSeek-V4.1-Flash","input":[` +
+		`{"type":"message","role":"user","content":[{"type":"input_text","text":"go"}]},` +
+		`{"type":"function_call","call_id":"call_a","name":"read_file","arguments":"{}"},` +
+		`{"type":"message","role":"assistant","content":[{"type":"output_text","text":"calling"}]},` +
+		`{"type":"function_call_output","call_id":"call_a","output":"A"}]}`)
+	hoisted, changed, err := normalizeParateraDeepSeekAssistantToolReplay(preface)
+	require.NoError(t, err)
+	require.True(t, changed)
+	require.Less(t,
+		strings.Index(string(hoisted), `"calling"`),
+		strings.Index(string(hoisted), `"call_a"`),
+		"a preface must still be hoisted above the call it introduces")
+}
 
 func TestNormalizeParateraDeepSeekAgentMessages(t *testing.T) {
 	body := []byte(`{"model":"DeepSeek-V4.1-Flash","input":[` +
