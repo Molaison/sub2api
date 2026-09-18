@@ -608,6 +608,17 @@ func shouldUseParateraDeepSeekResponsesCompatibility(account *Account, body []by
 	return isParateraDeepSeekResponsesEndpoint(account.GetOpenAIBaseURL(), account.GetMappedModel(requested))
 }
 
+// shouldUseParateraDeepSeekResponsesCompatibilityForOutboundBody gates on the
+// model actually present on the body being normalized (no account remapping).
+// The passthrough/WS routes forward body.model unchanged, so the entry gate and
+// the stream-repair gate must agree on that same model.
+func shouldUseParateraDeepSeekResponsesCompatibilityForOutboundBody(account *Account, body []byte) bool {
+	if account == nil || !account.IsOpenAIApiKey() {
+		return false
+	}
+	return isParateraDeepSeekResponsesEndpoint(account.GetOpenAIBaseURL(), gjson.GetBytes(body, "model").String())
+}
+
 const (
 	parateraDeepSeekResponsesBaseURL = "https://llmapi.paratera.com/v1"
 	parateraDeepSeekResponsesModel   = "DeepSeek-V4.1-Flash"
@@ -1496,7 +1507,7 @@ func normalizeOpenAIResponsesWebSocketCompatibilityBody(body []byte, account *Ac
 			return body, false, err
 		}
 	}
-	paratera := shouldUseParateraDeepSeekResponsesCompatibility(account, body)
+	paratera := shouldUseParateraDeepSeekResponsesCompatibilityForOutboundBody(account, body)
 	normalizeReasoning := normalizeOpenAIResponsesReasoningContentReplay
 	if paratera {
 		normalizeReasoning = normalizeParateraDeepSeekReasoningReplay

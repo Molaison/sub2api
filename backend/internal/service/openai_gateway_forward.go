@@ -114,7 +114,16 @@ func (s *OpenAIGatewayService) Forward(ctx context.Context, c *gin.Context, acco
 	wsDecision = resolveOpenAIWSDecisionByClientTransport(wsDecision, GetOpenAIClientTransport(c))
 	passthroughEnabled := account.IsOpenAIPassthroughEnabled()
 	compactPath := isOpenAIResponsesCompactPath(c)
-	parateraDeepSeekResponses := shouldUseParateraDeepSeekResponsesCompatibility(account, body) &&
+	// The Paratera compatibility gate must use the model actually sent upstream:
+	// the passthrough route forwards body.model unchanged, while the normal route
+	// resolves the account model mapping first. Gating both routes on the mapped
+	// model (or both on the alias) would normalize a request whose stream is then
+	// not repaired, or repair a stream whose request was not normalized.
+	parateraEffectiveModel := account.GetMappedModel(gjson.GetBytes(body, "model").String())
+	if passthroughEnabled && !compactPath {
+		parateraEffectiveModel = gjson.GetBytes(body, "model").String()
+	}
+	parateraDeepSeekResponses := isParateraDeepSeekResponsesEndpoint(account.GetOpenAIBaseURL(), parateraEffectiveModel) &&
 		!compactPath && !rawChatCompletionsResponses
 	var parateraStructuredOutput *parateraDeepSeekStructuredOutputBridge
 	if shouldFlattenOpenAIResponsesNamespaces(account, wsDecision.Transport, passthroughEnabled, compactPath) {

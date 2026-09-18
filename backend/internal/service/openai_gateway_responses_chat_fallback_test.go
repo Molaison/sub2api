@@ -551,7 +551,13 @@ func (c *batchRecordingCache) GetReasoningContents(_ context.Context, ids []stri
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	c.batchGets++
-	return map[string]string{}, nil
+	out := map[string]string{}
+	for _, id := range ids {
+		if v, ok := c.written[id]; ok {
+			out[id] = v
+		}
+	}
+	return out, nil
 }
 
 func (c *batchRecordingCache) SetReasoningContents(_ context.Context, items map[string]string, _ time.Duration) error {
@@ -599,4 +605,40 @@ func TestResponsesReasoningCachePlaintextPreferredAndSingleBatchRead(t *testing.
 	_ = rc.lookup("enc1")
 	_ = rc.lookup("enc2")
 	require.Equal(t, 1, cache.batchGets, "encrypted-only ids must be read in one batch")
+}
+
+// End-to-end: reasoning produced by the deferred tool tail at finalize is
+// collected and written in ONE batch before the terminal, and the next
+// encrypted-only turn reads it back from the same cache.
+func TestResponsesReasoningCacheDeferredReasoningReadableNextTurn(t *testing.T) {
+	cache := &batchRecordingCache{}
+	svc := &OpenAIGatewayService{cache: cache}
+
+	// Round 1: two reasoning items are produced (as the deferred tool tail would
+	// at finalize) and must be persisted before the client's next turn.
+	rc1 := &responsesReasoningCache{cache: cache, values: map[string]string{}, pending: map[string]string{}}
+	rc1.collectItem(&apicompat.ResponsesOutput{Type: "reasoning", ID: "rA", Summary: []apicompat.ResponsesSummary{{Type: "summary_text", Text: "alpha"}}})
+	rc1.collectItem(&apicompat.ResponsesOutput{Type: "reasoning", ID: "rB", Summary: []apicompat.ResponsesSummary{{Type: "summary_text", Text: "beta"}}})
+	rc1.flush()
+	require.Equal(t, 1, cache.batchSets)
+
+	// Round 2: the client replays encrypted-only reasoning items; the batch read
+	// must return both persisted values.
+	rc2 := svc.newResponsesReasoningCache(context.Background(), []byte(`[
+		{"type":"reasoning","id":"rA","summary":[]},
+		{"type":"reasoning","id":"rB","summary":[]}
+	]`))
+	require.Equal(t, "alpha", rc2.lookup("rA"))
+	require.Equal(t, "beta", rc2.lookup("rB"))
+	require.Equal(t, 1, cache.batchGets, "encrypted-only ids must be read in one batch")
+}
+
+// A failing flush must not repeat on the deferred cleanup path (no double
+// write budget on failure).
+func TestResponsesReasoningCacheFailureDoesNotDoubleFlush(t *testing.T) {
+	cache := &batchRecordingCache{}
+	rc := &responsesReasoningCache{cache: cache, values: map[string]string{}, pending: map[string]string{"r1": "A"}}
+	rc.flush()
+	rc.flush()
+	require.Equal(t, 1, cache.batchSets, "deferred cleanup must not flush again")
 }
