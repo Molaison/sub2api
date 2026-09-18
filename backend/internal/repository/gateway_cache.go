@@ -233,6 +233,58 @@ const reasoningContentPrefix = "reasoning_content:"
 // 跨多天恢复，取 7 天；调用方传入非正 TTL 时兜底。
 const reasoningContentDefaultTTL = 7 * 24 * time.Hour
 
+var _ service.ReasoningContentBatchCache = (*gatewayCache)(nil)
+
+// GetReasoningContents resolves all historical items in one Redis round trip.
+// Missing items are omitted; callers can distinguish a miss from an outage.
+func (c *gatewayCache) GetReasoningContents(ctx context.Context, itemIDs []string) (map[string]string, error) {
+	result := make(map[string]string)
+	if c == nil || c.rdb == nil {
+		return result, errors.New("gateway cache unavailable")
+	}
+	keys := make([]string, 0, len(itemIDs))
+	ids := make([]string, 0, len(itemIDs))
+	for _, id := range itemIDs {
+		if id = strings.TrimSpace(id); id != "" {
+			keys = append(keys, reasoningContentPrefix+id)
+			ids = append(ids, id)
+		}
+	}
+	if len(keys) == 0 {
+		return result, nil
+	}
+	values, err := c.rdb.MGet(ctx, keys...).Result()
+	if err != nil {
+		return result, err
+	}
+	for i, value := range values {
+		if text, ok := value.(string); ok {
+			result[ids[i]] = text
+		}
+	}
+	return result, nil
+}
+
+// SetReasoningContents refreshes history and new output together before the
+// terminal event, preserving immediately-following encrypted-only replays.
+func (c *gatewayCache) SetReasoningContents(ctx context.Context, items map[string]string, ttl time.Duration) error {
+	if c == nil || c.rdb == nil {
+		return errors.New("gateway cache unavailable")
+	}
+	if ttl <= 0 {
+		ttl = reasoningContentDefaultTTL
+	}
+	_, err := c.rdb.Pipelined(ctx, func(pipe redis.Pipeliner) error {
+		for id, text := range items {
+			if id = strings.TrimSpace(id); id != "" && text != "" {
+				pipe.Set(ctx, reasoningContentPrefix+id, text, ttl)
+			}
+		}
+		return nil
+	})
+	return err
+}
+
 // SetReasoningContent 按 reasoning item id 缓存 reasoning 全文。
 // itemID 或 content 为空时直接返回 nil（无可缓存内容，属正常情况而非错误）。
 func (c *gatewayCache) SetReasoningContent(ctx context.Context, itemID string, content string, ttl time.Duration) error {

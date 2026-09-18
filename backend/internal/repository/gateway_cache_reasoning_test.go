@@ -39,3 +39,24 @@ func TestGatewayCacheReasoningContent(t *testing.T) {
 	_, err = cache.GetReasoningContent(ctx, "item_empty")
 	require.ErrorIs(t, err, service.ErrReasoningContentNotFound)
 }
+
+func TestGatewayCacheReasoningContentBatch(t *testing.T) {
+	mr := miniredis.RunT(t)
+	client := redis.NewClient(&redis.Options{Addr: mr.Addr()})
+	t.Cleanup(func() { _ = client.Close() })
+	cache := NewGatewayCache(client).(service.ReasoningContentBatchCache)
+	ctx := context.Background()
+	require.NoError(t, cache.SetReasoningContents(ctx, map[string]string{
+		"first": "thought one", "second": "thought two", "empty": "", "": "invalid",
+	}, time.Minute))
+	got, err := cache.GetReasoningContents(ctx, []string{"first", "missing", "second", "", "empty"})
+	require.NoError(t, err)
+	require.Equal(t, map[string]string{"first": "thought one", "second": "thought two"}, got)
+	require.Equal(t, time.Minute, mr.TTL(reasoningContentPrefix+"first"))
+	mr.FastForward(time.Minute)
+	got, err = cache.GetReasoningContents(ctx, []string{"first", "second"})
+	require.NoError(t, err)
+	require.Empty(t, got)
+	require.NoError(t, cache.SetReasoningContents(ctx, map[string]string{"default": "ttl"}, 0))
+	require.Equal(t, reasoningContentDefaultTTL, mr.TTL(reasoningContentPrefix+"default"))
+}

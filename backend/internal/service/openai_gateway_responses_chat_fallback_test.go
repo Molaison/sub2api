@@ -5,7 +5,6 @@ package service
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -14,6 +13,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Wei-Shaw/sub2api/internal/pkg/apicompat"
 	"github.com/Wei-Shaw/sub2api/internal/pkg/openai_compat"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
@@ -520,71 +520,6 @@ func TestForwardResponses_ChatFallbackMalformedSSEFails(t *testing.T) {
 	require.NotContains(t, rec.Body.String(), "event: response.completed")
 }
 
-// --- reasoning cache budget: bounded accumulated IO, not wall-clock ---
-
-type slowReasoningCache struct {
-	stubGatewayCache
-	setDelay time.Duration
-	getDelay time.Duration
-	sets     int
-	gets     int
-}
-
-func (c *slowReasoningCache) SetReasoningContent(_ context.Context, _ string, _ string, _ time.Duration) error {
-	c.sets++
-	time.Sleep(c.setDelay)
-	return nil
-}
-
-func (c *slowReasoningCache) GetReasoningContent(_ context.Context, _ string) (string, error) {
-	c.gets++
-	time.Sleep(c.getDelay)
-	return "", ErrReasoningContentNotFound
-}
-
-// Many encrypted-only ids must not each burn a full read timeout: the shared
-// budget bounds total cache IO and short-circuits the rest.
-func TestReasoningCacheBudgetBoundsTotalReadIO(t *testing.T) {
-	cache := &slowReasoningCache{getDelay: reasoningCacheOpTimeout}
-	svc := &OpenAIGatewayService{cache: cache}
-	budget := newReasoningCacheBudget()
-
-	start := time.Now()
-	for i := 0; i < 20; i++ {
-		_ = svc.reasoningContentByIDWithBudget(fmt.Sprintf("id_%d", i), budget)
-	}
-	elapsed := time.Since(start)
-
-	require.Less(t, elapsed, reasoningCacheTotalBudget+reasoningCacheOpTimeout+50*time.Millisecond,
-		"total cache IO wait must stay within the shared budget")
-	require.Less(t, cache.gets, 20, "the budget must short-circuit the remaining reads")
-}
-
-// The budget counts IO time, not wall-clock since request start, so reasoning
-// produced after a slow generation is still cached.
-func TestReasoningCacheBudgetIgnoresGenerationTime(t *testing.T) {
-	cache := &reasoningRecordingCache{}
-	svc := &OpenAIGatewayService{cache: cache}
-	budget := newReasoningCacheBudget()
-
-	// Simulate a slow upstream generation before the reasoning item is produced.
-	time.Sleep(reasoningCacheTotalBudget + 50*time.Millisecond)
-
-	svc.setReasoningContent("late_reasoning", "late text", budget)
-	require.Equal(t, "late text", cache.snapshotSets()["late_reasoning"],
-		"reasoning produced after a slow generation must still be cached")
-}
-
-// A nil budget must not panic and must fall back to the per-op timeout.
-func TestReasoningCacheBudgetNilSafe(t *testing.T) {
-	cache := &reasoningRecordingCache{}
-	svc := &OpenAIGatewayService{cache: cache}
-	require.NotPanics(t, func() {
-		svc.setReasoningContent("nil_budget", "text", nil)
-	})
-	require.Equal(t, "text", cache.snapshotSets()["nil_budget"])
-}
-
 func TestForwardResponses_ChatFallbackStopWithPendingToolFails(t *testing.T) {
 	upstreamBody := strings.Join([]string{
 		`data: {"id":"c4","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"tool_calls":[{"index":0,"id":"call_s","type":"function","function":{"name":"exec","arguments":"{}"}}]},"finish_reason":null}]}`,
@@ -600,4 +535,68 @@ func TestForwardResponses_ChatFallbackStopWithPendingToolFails(t *testing.T) {
 	require.NotContains(t, streamBody, "event: response.function_call_arguments.done")
 	require.NotContains(t, streamBody, "event: response.completed")
 	require.NotContains(t, streamBody, "data: [DONE]")
+}
+
+// --- new architecture: request-level batch reasoning cache ---
+
+type batchRecordingCache struct {
+	stubGatewayCache
+	mu        sync.Mutex
+	batchSets int
+	batchGets int
+	written   map[string]string
+}
+
+func (c *batchRecordingCache) GetReasoningContents(_ context.Context, ids []string) (map[string]string, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.batchGets++
+	return map[string]string{}, nil
+}
+
+func (c *batchRecordingCache) SetReasoningContents(_ context.Context, items map[string]string, _ time.Duration) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.batchSets++
+	if c.written == nil {
+		c.written = make(map[string]string)
+	}
+	for k, v := range items {
+		c.written[k] = v
+	}
+	return nil
+}
+
+// Multiple reasoning items collected during a stream (including ones produced by
+// the deferred tool tail at finalize) must be written in ONE batch before the
+// terminal, and a repeated flush must not write again.
+func TestResponsesReasoningCacheBatchesOnceAndIsIdempotent(t *testing.T) {
+	cache := &batchRecordingCache{}
+	rc := &responsesReasoningCache{cache: cache, values: map[string]string{}, pending: map[string]string{}}
+
+	rc.collectItem(&apicompat.ResponsesOutput{Type: "reasoning", ID: "r1", Summary: []apicompat.ResponsesSummary{{Type: "summary_text", Text: "A"}}})
+	rc.collectItem(&apicompat.ResponsesOutput{Type: "reasoning", ID: "r2", Summary: []apicompat.ResponsesSummary{{Type: "summary_text", Text: "B"}}})
+	rc.flush()
+	require.Equal(t, 1, cache.batchSets, "collected reasoning must be written in one batch")
+	require.Equal(t, map[string]string{"r1": "A", "r2": "B"}, cache.written)
+
+	rc.flush()
+	require.Equal(t, 1, cache.batchSets, "a repeated flush must not write again")
+}
+
+// Plaintext in the request wins over the batch read for the same id, and the
+// encrypted-only ids are read in one batch.
+func TestResponsesReasoningCachePlaintextPreferredAndSingleBatchRead(t *testing.T) {
+	cache := &batchRecordingCache{}
+	svc := &OpenAIGatewayService{cache: cache}
+	input := []byte(`[
+		{"type":"reasoning","id":"plain","summary":[{"type":"summary_text","text":"local"}]},
+		{"type":"reasoning","id":"enc1","summary":[]},
+		{"type":"reasoning","id":"enc2","summary":[]}
+	]`)
+	rc := svc.newResponsesReasoningCache(context.Background(), input)
+	require.Equal(t, "local", rc.lookup("plain"))
+	_ = rc.lookup("enc1")
+	_ = rc.lookup("enc2")
+	require.Equal(t, 1, cache.batchGets, "encrypted-only ids must be read in one batch")
 }
