@@ -6,7 +6,8 @@ on:
     - cron: "17 3 * * 1"
 
 permissions:
-  contents: write
+  contents: read
+  issues: write
 
 concurrency:
   group: sync-upstream-deepseek-replay-fix
@@ -22,29 +23,66 @@ jobs:
           ref: deepseek-responses-replay-fix
           fetch-depth: 0
 
-      - name: Rebase onto upstream main
+      - name: Check upstream changes without pushing
+        id: compare
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git remote add upstream https://github.com/Wei-Shaw/sub2api.git
-          git fetch upstream main --tags
-          git rebase upstream/main
+          git fetch upstream main
+          behind=$(git rev-list --count HEAD..upstream/main)
+          echo "behind=$behind" >> "$GITHUB_OUTPUT"
+          if [ "$behind" -eq 0 ]; then
+            echo "status=current" >> "$GITHUB_OUTPUT"
+          elif git -c user.name='github-actions[bot]' \
+                   -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+                   rebase upstream/main; then
+            echo "status=needs-update" >> "$GITHUB_OUTPUT"
+          else
+            git rebase --abort
+            echo "status=conflict" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Set up Go
+        if: steps.compare.outputs.status != 'conflict'
         uses: actions/setup-go@v6
         with:
           go-version-file: backend/go.mod
-          check-latest: false
-          cache: true
           cache-dependency-path: backend/go.sum
 
       - name: Test DeepSeek Responses compatibility fixes
+        id: tests
+        if: steps.compare.outputs.status != 'conflict'
         working-directory: backend
         run: >-
           go test ./internal/service
           -run '^(TestNormalizeOpenAIResponsesAssistantToolReplay|TestDeepSeekCodexReasoning|TestStripDeepSeekCodexReasoningHeaders)'
           -count=1
 
-      - name: Update patched branch
-        run: >-
-          git push --force-with-lease origin HEAD:deepseek-responses-replay-fix
+      - name: Create or update upstream sync issue
+        if: always() && steps.compare.outputs.behind != '' && steps.compare.outputs.behind != '0'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const {owner, repo} = context.repo;
+            const title = '[sync] Update deepseek-responses-replay-fix from upstream';
+            const body = [
+              `Upstream is ${{ steps.compare.outputs.behind }} commit(s) ahead of the deployed patch branch.`,
+              `Rebase status: ${{ steps.compare.outputs.status }}.`,
+              `Compatibility tests: ${{ steps.tests.outcome }}.`,
+              `Run: ${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`,
+              '',
+              'Rebuild/review the patch against upstream main, run security checks, and update the branch manually.',
+              'The workflow intentionally never pushes or force-pushes upstream changes.'
+            ].join('\n');
+            const issues = await github.paginate(github.rest.issues.listForRepo, {
+              owner, repo, state: 'open', per_page: 100
+            });
+            const existing = issues.find(issue => issue.title === title && !issue.pull_request);
+            if (existing) {
+              await github.rest.issues.update({owner, repo, issue_number: existing.number, body});
+            } else {
+              await github.rest.issues.create({owner, repo, title, body});
+            }
+
+      - name: Fail if rebase conflicted
+        if: steps.compare.outputs.status == 'conflict'
+        run: exit 1
