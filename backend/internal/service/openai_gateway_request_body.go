@@ -729,6 +729,87 @@ func normalizeOpenAIResponsesReasoningContentReplay(body []byte) ([]byte, bool, 
 	return normalized, true, nil
 }
 
+// normalizeOpenAIResponsesAssistantToolReplay removes provider-emitted
+// assistant messages when they separate a function call from its matching tool
+// output. Some Responses-compatible providers place tool prefaces after the
+// function_call item, then reject that same ordering when Codex replays the
+// stateless history. The message was already delivered to the client, so it
+// must not remain between the call and its output on replay.
+func normalizeOpenAIResponsesAssistantToolReplay(body []byte) ([]byte, bool, error) {
+	input := gjson.GetBytes(body, "input")
+	if !input.IsArray() {
+		return body, false, nil
+	}
+	var reqBody map[string]any
+	if err := decodeOpenAIJSONUseNumber(body, &reqBody); err != nil {
+		return body, false, fmt.Errorf("normalize assistant tool replay: %w", err)
+	}
+	items, ok := reqBody["input"].([]any)
+	if !ok {
+		return body, false, nil
+	}
+	futureOutputs := make(map[string]int)
+	for _, rawItem := range items {
+		item, ok := rawItem.(map[string]any)
+		if !ok || strings.TrimSpace(firstNonEmptyString(item["type"])) != "function_call_output" {
+			continue
+		}
+		if callID := strings.TrimSpace(firstNonEmptyString(item["call_id"])); callID != "" {
+			futureOutputs[callID]++
+		}
+	}
+	pendingCalls := make(map[string]int)
+	filtered := make([]any, 0, len(items))
+	changed := false
+	for _, rawItem := range items {
+		item, ok := rawItem.(map[string]any)
+		if !ok {
+			filtered = append(filtered, rawItem)
+			continue
+		}
+		typ := strings.TrimSpace(firstNonEmptyString(item["type"]))
+		switch typ {
+		case "function_call":
+			if callID := strings.TrimSpace(firstNonEmptyString(item["call_id"])); callID != "" {
+				pendingCalls[callID]++
+			}
+		case "function_call_output":
+			callID := strings.TrimSpace(firstNonEmptyString(item["call_id"]))
+			if futureOutputs[callID] > 0 {
+				futureOutputs[callID]--
+			}
+			if pendingCalls[callID] > 0 {
+				pendingCalls[callID]--
+			}
+		}
+		if isOpenAIResponsesAssistantMessage(item) && hasPendingOpenAIToolOutput(pendingCalls, futureOutputs) {
+			changed = true
+			continue
+		}
+		filtered = append(filtered, rawItem)
+	}
+	if !changed {
+		return body, false, nil
+	}
+	reqBody["input"] = filtered
+	normalized, err := marshalOpenAIUpstreamJSON(reqBody)
+	if err != nil {
+		return body, false, fmt.Errorf("serialize assistant tool replay: %w", err)
+	}
+	return normalized, true, nil
+}
+func hasPendingOpenAIToolOutput(pendingCalls, futureOutputs map[string]int) bool {
+	for callID, count := range pendingCalls {
+		if count > 0 && futureOutputs[callID] > 0 {
+			return true
+		}
+	}
+	return false
+}
+func isOpenAIResponsesAssistantMessage(item map[string]any) bool {
+	return strings.TrimSpace(firstNonEmptyString(item["type"])) == "message" &&
+		strings.EqualFold(strings.TrimSpace(firstNonEmptyString(item["role"])), "assistant")
+}
 func normalizeOpenAIAPIKeyStoreFalseReasoningReplay(body []byte, knownStoreFalse bool) ([]byte, bool, error) {
 	if !knownStoreFalse && gjson.GetBytes(body, "store").Type != gjson.False {
 		return body, false, nil
